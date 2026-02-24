@@ -1,0 +1,105 @@
+/* Fondo general */
+.loginBiblio-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1f2937, #111827);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Tarjeta */
+.loginBiblio-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  padding: 40px;
+  width: 380px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  color: white;
+  text-align: center;
+}
+
+/* Título */
+.loginBiblio-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Subtítulo */
+.loginBiblio-subtitle {
+  font-size: 14px;
+  color: #d1d5db;
+  margin-bottom: 25px;
+}
+
+/* Campos */
+.loginBiblio-field {
+  text-align: left;
+  margin-bottom: 18px;
+}
+
+.loginBiblio-field label {
+  font-size: 13px;
+  color: #e5e7eb;
+}
+
+.loginBiblio-field input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background: #374151;
+  color: white;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.loginBiblio-field input:focus {
+  background: #4b5563;
+}
+
+/* Botón */
+.loginBiblio-button {
+  width: 100%;
+  padding: 12px;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+
+.loginBiblio-button:hover {
+  background: #1d4ed8;
+}
+
+/* Error */
+.loginBiblio-error {
+  background: #7f1d1d;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 13px;
+}
+
+/* Links */
+.loginBiblio-links {
+  margin-top: 18px;
+}
+
+.loginBiblio-links a {
+  color: #93c5fd;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.loginBiblio-links a:hover {
+  text-decoration: underline;
+}
