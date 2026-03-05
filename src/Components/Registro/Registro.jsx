@@ -1,36 +1,48 @@
 import React, { useState } from "react";
 import "./Registro.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export const Registro = () => {
-  const [user, setUser] = useState("");
+  const [usuario, setUsuario] = useState("");
   const [nombre, setNombre] = useState("");
   const [apellidoPaterno, setApellidoPaterno] = useState("");
   const [apellidoMaterno, setApellidoMaterno] = useState("");
-  const [pass, setPass] = useState("");
-  const [passConfirm, setPassConfirm] = useState("");
-  const [idTipoUsuario, setIdTipoUsuario] = useState(0);
+  const [correo, setCorreo] = useState("");
+  const [contraseña, setcontraseña] = useState("");
+  const [contraseñaconfirm, setContraseñaconfirm] = useState("");
+  const [tipousuario, setTipousuario] = useState("");
+  const [fecharegistro, setFecharegistro] = useState("");
+
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
-  const [numControl, setNumControl] = useState("");
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setMensaje("");
-    //VALIDACION
-    if (!user.trim() || !nombre.trim() || !apellidoPaterno.trim() || !apellidoMaterno.trim() || !pass || !passConfirm) {
+
+    // ✅ VALIDACIÓN
+    if (
+      !usuario.trim() ||
+      !nombre.trim() ||
+      !apellidoPaterno.trim() ||
+      !apellidoMaterno.trim() ||
+      !correo.trim() ||
+      !contraseña ||
+      !contraseñaconfirm ||
+      !tipousuario ||
+      !fecharegistro
+    ) {
       setError("Todos los campos son obligatorios");
       return;
     }
 
-    if (pass.length < 6 || pass.length > 16) {
+    if (contraseña.length < 6 || contraseña.length > 16) {
       setError("La contraseña debe tener entre 6 y 16 caracteres");
       return;
     }
 
-    if (pass !== passConfirm) {
+    if (contraseña !== contraseñaconfirm) {
       setError("Las contraseñas no coinciden");
       return;
     }
@@ -42,36 +54,37 @@ export const Registro = () => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-
+          usuario: usuario.trim(),
           nombre: nombre.trim(),
           apellidoPaterno: apellidoPaterno.trim(),
           apellidoMaterno: apellidoMaterno.trim(),
-          pass,
-          idTipoUsuario: Number(idTipoUsuario),
-          user: user.trim(),
-          numControl: idTipoUsuario === 1 ? numControl.trim() : null
+          correo: correo.trim(),
+          contraseña,
+          
+          tipousuario: Number(tipousuario),
+         
+          fecharegistro
         })
       });
 
-      // 🔥 evitar crash si no viene json
       let data = {};
       try {
-        data = await res.json();
-      } catch { }
+        data = await res.json(); // ✅ corregido
+      } catch {}
 
       if (res.ok) {
         setMensaje(data.msg || "Usuario registrado correctamente");
 
-        // limpiar
+        // ✅ limpiar correctamente
+        setUsuario("");
         setNombre("");
         setApellidoPaterno("");
         setApellidoMaterno("");
-        setPass("");
-        setPassConfirm("");
-        setIdTipoUsuario(1);
-        setNumControl("");
-        setUser("");
-
+        setCorreo("");
+        setcontraseña("");
+        setContraseñaconfirm("");
+        setTipousuario("");
+        setFecharegistro("");
       } else {
         setError(data.msg || "Error al registrar usuario");
       }
@@ -93,7 +106,6 @@ export const Registro = () => {
 
       <div className="registro-right">
         <form className="registro-form" onSubmit={handleSubmit} noValidate>
-
           <h2>Crear cuenta</h2>
 
           {error && <div className="alert error">{error}</div>}
@@ -102,8 +114,8 @@ export const Registro = () => {
           <div className="input-group">
             <input
               type="text"
-              value={user}
-              onChange={(e) => setUser(e.target.value)}
+              value={usuario}
+              onChange={(e) => setUsuario(e.target.value)}
               placeholder="Nombre de usuario"
             />
           </div>
@@ -134,42 +146,50 @@ export const Registro = () => {
           </div>
 
           <div className="input-group">
+            <input
+              type="email"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              placeholder="Correo electrónico"
+            />
+          </div>
+
+          <div className="input-group">
             <select
-              value={idTipoUsuario}
-              onChange={(e) => setIdTipoUsuario(Number(e.target.value))}
+              value={tipousuario}
+              onChange={(e) => setTipousuario(e.target.value)}
             >
-              <option value={0}>Selecciona tipo de usuario</option>
-              <option value={1}>Estudiante</option>
-              <option value={2}>Externo</option>
+              <option value="">Selecciona tipo de usuario</option>
+              <option value="1">Estudiante</option>
+              <option value="2">Docente</option>
+              <option value="3">Externo</option>
             </select>
           </div>
 
-          {idTipoUsuario === 1 && (
-            <div className="input-group">
-              <input
-                type="text"
-                value={numControl}
-                onChange={(e) => setNumControl(e.target.value)}
-                placeholder="Número de control"
-              />
-            </div>
-          )}
+          <div className="input-group">
+            <input
+              type="date"
+              value={fecharegistro}
+              onChange={(e) => setFecharegistro(e.target.value)}
+            />
+          </div>
 
           <div className="input-row">
             <input
               type="password"
-              value={pass}
-              onChange={(e) => setPass(e.target.value)}
+              value={contraseña}
+              onChange={(e) => setcontraseña(e.target.value)}
               placeholder="Contraseña"
             />
 
             <input
               type="password"
-              value={passConfirm}
-              onChange={(e) => setPassConfirm(e.target.value)}
+              value={contraseñaconfirm}
+              onChange={(e) => setContraseñaconfirm(e.target.value)}
               placeholder="Confirmar contraseña"
             />
           </div>
+
           <div className="login-link">
             ¿Ya tienes cuenta? <Link to="/">Iniciar sesión</Link>
           </div>
@@ -177,7 +197,6 @@ export const Registro = () => {
           <button type="submit" className="registro-btn">
             Registrarse
           </button>
-
         </form>
       </div>
     </div>

@@ -6,7 +6,7 @@ import { Prestamo } from "./Components/Prestamo/Prestamo";
 import { Devolucion } from "./Components/Devolucion/Devolucion";
 import { Lista } from "./Components/Lista/Lista";
 import { Bibliotecario } from "./Components/Bibliotecario/Biblliotecario";
-
+import { Biblioinicio } from "./Components/Biblioinicio/Biblioinicio";
 function App() {
   return (
     <BrowserRouter>
@@ -18,6 +18,7 @@ function App() {
         <Route path="/devolucion" element={<Devolucion />} />
         <Route path="/lista" element={<Lista />} />
         <Route path="/bibliotecario" element={<Bibliotecario/>}/>
+        <Route path="/biblioinicio" element={<Biblioinicio/>}/>
       </Routes>
     </BrowserRouter>
   );

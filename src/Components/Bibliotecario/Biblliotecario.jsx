@@ -33,7 +33,7 @@ export const Bibliotecario = () => {
 
             if (res.ok) {
                 // 🔥 Si login es correcto
-                navigate("/inicio");
+                navigate("/biblioinicio");
             } else {
                 // ❌ Si usuario no existe o contraseña incorrecta
                 setError(data.msg);

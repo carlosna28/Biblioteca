@@ -3,162 +3,221 @@
 /* ============================= */
 
 .registro-wrapper {
-    min-height: 100vh;
-    display: flex;
-    font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  font-family: 'Inter', sans-serif;
+  background: #f5f7fa;
 }
 
-/* LADO IZQUIERDO (CON IMAGEN SUAVE) */
+/* ============================= */
+/* LADO IZQUIERDO */
+/* ============================= */
+
 .registro-left {
-    flex: 1;
-    background: 
-        linear-gradient(rgba(110,193,228,0.85), rgba(74,170,209,0.85)),
-        url("/Index.jpg");
-    background-size: cover;
-    background-position: center;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 80px;
+  flex: 1;
+  background:
+    linear-gradient(rgba(110,193,228,0.85), rgba(74,170,209,0.85)),
+    url("/Index.jpg");
+  background-size: cover;
+  background-position: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px;
 }
 
 .registro-left h1 {
-    font-size: 40px;
-    margin-bottom: 20px;
-    font-weight: 600;
+  font-size: 40px;
+  margin-bottom: 20px;
+  font-weight: 600;
 }
 
 .registro-left p {
-    font-size: 15px;
-    line-height: 1.6;
-    max-width: 420px;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 420px;
+  opacity: 0.95;
 }
 
+/* ============================= */
 /* LADO DERECHO */
+/* ============================= */
+
 .registro-right {
-    flex: 1;
-    background: #f5f7fa;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px;
+  flex: 1;
+  background: #f5f7fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
 }
 
+/* ============================= */
 /* FORMULARIO */
+/* ============================= */
+
 .registro-form {
-    width: 100%;
-    max-width: 420px;
-    background: white;
-    padding: 45px;
-    border-radius: 18px;
-    box-shadow: 0 30px 70px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  padding: 45px;
+  border-radius: 18px;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.08);
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .registro-form h2 {
-    margin-bottom: 25px;
-    font-size: 24px;
-    font-weight: 600;
-    color: #1f2937;
+  margin-bottom: 25px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: center;
 }
 
+/* ============================= */
 /* INPUTS */
+/* ============================= */
+
 .input-group {
-    margin-bottom: 18px;
+  margin-bottom: 18px;
 }
 
 .input-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 18px;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .registro-form input,
 .registro-form select {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 10px;
-    border: 1px solid #e5e7eb;
-    font-size: 14px;
-    outline: none;
-    transition: 0.25s;
-    background: #f9fafb;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.25s ease;
+  background: #f9fafb;
 }
 
+/* FIX importante para selects */
+.registro-form select {
+  cursor: pointer;
+}
+
+/* FOCUS bonito */
 .registro-form input:focus,
 .registro-form select:focus {
-    border-color: #6ec1e4;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(110,193,228,0.2);
+  border-color: #6ec1e4;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(110,193,228,0.2);
 }
 
+/* ============================= */
 /* BOTÓN */
+/* ============================= */
+
 .registro-btn {
-    width: 100%;
-    padding: 13px;
-    border-radius: 12px;
-    border: none;
-    background: linear-gradient(135deg, #6ec1e4, #4aaad1);
-    color: white;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.25s;
+  width: 100%;
+  padding: 13px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #6ec1e4, #4aaad1);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
 .registro-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
 }
 
+.registro-btn:active {
+  transform: translateY(0);
+}
+
+/* ============================= */
 /* LINK LOGIN */
+/* ============================= */
+
 .login-link {
-    text-align: center;
-    margin-bottom: 18px;
-    font-size: 13px;
-    color: #6b7280;
+  text-align: center;
+  margin: 10px 0 18px;
+  font-size: 13px;
+  color: #6b7280;
 }
 
 .login-link a {
-    color: #4aaad1;
-    text-decoration: none;
-    font-weight: 500;
+  color: #4aaad1;
+  text-decoration: none;
+  font-weight: 500;
 }
 
 .login-link a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
+/* ============================= */
 /* ALERTAS */
+/* ============================= */
+
 .alert {
-    padding: 10px 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    margin-bottom: 15px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 15px;
 }
 
 .alert.error {
-    background: #fee2e2;
-    color: #b91c1c;
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 .alert.success {
-    background: #dcfce7;
-    color: #166534;
+  background: #dcfce7;
+  color: #166534;
 }
 
+/* ============================= */
 /* RESPONSIVE */
+/* ============================= */
+
 @media (max-width: 900px) {
-    .registro-wrapper {
-        flex-direction: column;
-    }
+  .registro-wrapper {
+    flex-direction: column;
+  }
 
-    .registro-left {
-        display: none;
-    }
+  .registro-left {
+    display: none;
+  }
 
-    .registro-form {
-        box-shadow: none;
-        border-radius: 0;
-    }
+  .registro-right {
+    padding: 20px;
+  }
+
+  .registro-form {
+    box-shadow: none;
+    border-radius: 14px;
+    padding: 30px 22px;
+  }
+
+  .input-row {
+    flex-direction: column;
+    gap: 18px;
+  }
 }

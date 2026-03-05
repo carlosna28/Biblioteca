@@ -1,121 +1,193 @@
-/* CONTENEDOR GENERAL */
-.Inicio {
-    min-height: 100vh;
-    background: #f4f6f9;
-    font-family: Arial, Helvetica, sans-serif;
+/* ===== RESET SUAVE ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Roboto, sans-serif;
 }
 
-.Titulo-Inicio {
-    font-size: 42px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #1e3c72;
-    position: relative;
-    display: inline-block;
+/* ===== FONDO GENERAL ===== */
+.upx-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  padding: 40px 20px;
+  color: #f1f5f9;
 }
 
-
-
-/* 🔷 BARRA SUPERIOR */
-.barra-superior {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 40px;
-    background: linear-gradient(90deg, #528bf5, #2a5298);
-    color: white;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+/* ===== HEADER ===== */
+.upx-header {
+  text-align: center;
+  margin-bottom: 40px;
 }
 
-/* MENU */
-.menu {
-    display: flex;
-    gap: 30px;
-    font-size: 15px;
-    font-weight: 500;
+.upx-title {
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, #38bdf8, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.menu a {
-    text-decoration: none;
-    color: white;
-    position: relative;
-    transition: 0.3s ease;
-    padding: 5px 0;
+.upx-subtitle {
+  color: #94a3b8;
+  font-size: 15px;
 }
 
-.menu a::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -4px;
-    width: 0%;
-    height: 2px;
-    background-color: #f1c40f;
-    transition: 0.3s ease;
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.upx-container {
+  max-width: 1100px;
+  margin: auto;
+  display: grid;
+  gap: 25px;
 }
 
-.menu a:hover {
-    color: #f1c40f;
+/* ===== SECCIONES ===== */
+.upx-section {
+  background: rgba(30, 41, 59, 0.8);
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  transition: 0.3s ease;
 }
 
-.menu a:hover::after {
-    width: 100%;
+.upx-section:hover {
+  transform: translateY(-3px);
 }
 
-/* 🔍 BUSCADOR */
-.buscador {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+/* ===== TITULOS ===== */
+.upx-section-title {
+  font-size: 20px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #38bdf8;
 }
 
-.buscador input {
-    padding: 6px 12px;
-    border-radius: 20px;
-    border: none;
-    outline: none;
-    font-size: 14px;
+/* ===== BUSCADOR ===== */
+.upx-search {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  margin-bottom: 15px;
+  background: #0f172a;
+  color: white;
+  outline: none;
+  border: 1px solid #334155;
+  transition: 0.2s ease;
 }
 
-.buscador button {
-    padding: 6px 12px;
-    border-radius: 20px;
-    border: none;
-    cursor: pointer;
-    background-color: #e9c947;
-    transition: 0.3s;
-}
-.buscador button:hover {
-    background-color: #f5e195;
+.upx-search:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
 }
 
-/* 📚 CONTENIDO */
-.contenido {
-    padding: 40px;
+/* ===== LISTAS ===== */
+.upx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.titulo-seccion {
-    margin-bottom: 25px;
-    color: #333;
+/* ===== FILAS ===== */
+.upx-row {
+  background: #0f172a;
+  padding: 15px;
+  border-radius: 10px;
+  transition: 0.2s ease;
+  border: 1px solid #1e293b;
 }
 
-/* GRID DE LIBROS */
-.libros-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 25px;
+.upx-row:hover {
+  background: #1e293b;
+  transform: scale(1.01);
 }
 
-/* TARJETA LIBRO */
-.libro {
-    height: 200px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    transition: 0.25s;
-    cursor: pointer;
+/* ===== TEXTO PRINCIPAL ===== */
+.upx-main-text {
+  font-weight: 600;
+  font-size: 16px;
+  color: #f8fafc;
 }
 
-.libro:hover {
-    transform: translateY(-5px);
+/* ===== BADGES ===== */
+.upx-badge {
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.upx-badge-blue {
+  background: #1d4ed8;
+  color: white;
+}
+
+.upx-badge-green {
+  background: #16a34a;
+  color: white;
+}
+
+/* ===== BOTONES FILTRO ===== */
+.upx-filter-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.upx-filter-buttons button {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  background: #1e293b;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.upx-filter-buttons button:hover {
+  background: #334155;
+}
+
+.upx-filter-buttons button.active {
+  background: #38bdf8;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* ===== BOTON PAGAR ===== */
+.upx-pay-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #ef4444;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.upx-pay-btn:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+/* ===== ALERTA ===== */
+.upx-alert {
+  background: #16a34a;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* ===== MENSAJE VACÍO ===== */
+.upx-empty {
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  padding: 15px 0;
 }
