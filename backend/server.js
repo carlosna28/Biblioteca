@@ -51,50 +51,84 @@ app.post("/usuario", async (req, res) => {
       });
     }
 
-    const hashedPass = await bcrypt.hash(contraseña, 10);
+    // 🔎 VERIFICAR SI USUARIO YA EXISTE
+    const checkUser = `SELECT idUsuario FROM usuario WHERE BINARY usuario = ?`;
 
-    const sql = `
-      INSERT INTO usuario 
-      (usuario, nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, idRol, idTipoUsuario, activo, fechaRegistro)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    db.query(checkUser, [usuario], async (err, results) => {
 
-    db.query(
-      sql,
-      [
-        usuario,
-        nombre,
-        apellidoPaterno,
-        apellidoMaterno || null,
-        correo || null,
-        hashedPass,
-        idRol,
-        Number(tipousuario),
-        activo,
-        fecharegistro || new Date()
-      ],
-      (err, result) => {
-        if (err) {
-          console.error("ERROR SQL:", err);
-          return res.status(500).json({
-            msg: "Error al registrar usuario",
-            error: err.sqlMessage
-          });
-        }
-
-        res.status(201).json({
-          msg: "Usuario registrado correctamente",
-          id: result.insertId
+      if (results.length > 0) {
+        return res.status(400).json({
+          msg: "El usuario ya está en uso, usa otro"
         });
       }
-    );
+
+      const hashedPass = await bcrypt.hash(contraseña, 10);
+
+      const sql = `
+        INSERT INTO usuario 
+        (usuario, nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, idRol, idTipoUsuario, activo, fechaRegistro)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+
+      db.query(
+        sql,
+        [
+          usuario,
+          nombre,
+          apellidoPaterno,
+          apellidoMaterno || null,
+          correo || null,
+          hashedPass,
+          idRol,
+          Number(tipousuario),
+          activo,
+          fecharegistro || new Date()
+        ],
+        (err, result) => {
+
+          if (err) {
+
+            // 🔴 ERROR DE DUPLICADO
+            if (err.code === "ER_DUP_ENTRY") {
+
+              if (err.sqlMessage.includes("correo")) {
+                return res.status(400).json({
+                  msg: "El correo ya está registrado, usa otro"
+                });
+              }
+
+              if (err.sqlMessage.includes("usuario")) {
+                return res.status(400).json({
+                  msg: "El usuario ya está en uso, elige otro"
+                });
+              }
+
+              return res.status(400).json({
+                msg: "Dato duplicado"
+              });
+            }
+
+            console.error("ERROR SQL:", err);
+            return res.status(500).json({
+              msg: "Error al registrar usuario"
+            });
+          }
+
+          res.status(201).json({
+            msg: "Usuario registrado correctamente",
+            id: result.insertId
+          });
+
+        }
+      );
+
+    });
+
   } catch (error) {
     console.error("Error servidor:", error);
     res.status(500).json({ msg: "Error del servidor" });
   }
 });
-
-
 // =============================
 // LOGIN
 // =============================
@@ -112,10 +146,10 @@ app.post("/login", async (req, res) => {
     }
 
     const sql = `
-      SELECT idUsuario, usuario, contraseña, idRol, activo
-      FROM usuario
-      WHERE usuario = ?
-    `;
+  SELECT idUsuario, usuario, contraseña, idRol, activo
+  FROM usuario
+  WHERE BINARY usuario = ?
+`;
 
     db.query(sql, [user], async (err, results) => {
       if (err) {
@@ -183,9 +217,9 @@ app.post("/editorial", (req, res) => {
 
   // 🔍 Verificar duplicado (case insensitive)
   const sqlCheck = `
-    SELECT * FROM editorial 
-    WHERE LOWER(nombre) = ?
-  `;
+      SELECT * FROM editorial 
+      WHERE LOWER(nombre) = ?
+    `;
 
   db.query(sqlCheck, [nombreNormalizado], (err, result) => {
     if (err) {
@@ -200,9 +234,9 @@ app.post("/editorial", (req, res) => {
 
     // ✅ Insertar si no existe
     const sqlInsert = `
-      INSERT INTO editorial (nombre)
-      VALUES (?)
-    `;
+        INSERT INTO editorial (nombre)
+        VALUES (?)
+      `;
 
     db.query(sqlInsert, [nombre.trim()], (err2) => {
       if (err2) {
@@ -233,11 +267,11 @@ app.post("/autor", (req, res) => {
   }
 
   const sqlCheck = `
-    SELECT * FROM autor 
-    WHERE LOWER(nombre) = ?
-    AND LOWER(apellidoPaterno) = ?
-    AND LOWER(apellidoMaterno) = ?
-  `;
+      SELECT * FROM autor 
+      WHERE LOWER(nombre) = ?
+      AND LOWER(apellidoPaterno) = ?
+      AND LOWER(apellidoMaterno) = ?
+    `;
 
   db.query(
     sqlCheck,
@@ -256,9 +290,9 @@ app.post("/autor", (req, res) => {
       }
 
       const sqlInsert = `
-        INSERT INTO autor (nombre, apellidoPaterno, apellidoMaterno)
-        VALUES (?, ?, ?)
-      `;
+          INSERT INTO autor (nombre, apellidoPaterno, apellidoMaterno)
+          VALUES (?, ?, ?)
+        `;
 
       db.query(
         sqlInsert,
@@ -294,9 +328,9 @@ app.post("/categoria", (req, res) => {
 
   // 🔍 Verificar si ya existe (sin importar mayúsculas)
   const sqlCheck = `
-    SELECT * FROM categoria 
-    WHERE LOWER(nombre) = ?
-  `;
+      SELECT * FROM categoria 
+      WHERE LOWER(nombre) = ?
+    `;
 
   db.query(sqlCheck, [nombreNormalizado], (err, result) => {
     if (err) {
@@ -311,9 +345,9 @@ app.post("/categoria", (req, res) => {
 
     // ✅ Insertar si no existe
     const sqlInsert = `
-      INSERT INTO categoria (nombre)
-      VALUES (?)
-    `;
+        INSERT INTO categoria (nombre)
+        VALUES (?)
+      `;
 
     db.query(sqlInsert, [nombre.trim()], (err2) => {
       if (err2) {
@@ -355,8 +389,7 @@ app.get("/autores", (req, res) => {
   );
 });
 
-
-app.post("/libro", (req, res) => {
+app.post("/libro", async (req, res) => {
   const {
     nombre,
     isbn,
@@ -366,84 +399,130 @@ app.post("/libro", (req, res) => {
     idAutores
   } = req.body;
 
-  if (!nombre || !isbn) {
-    return res.status(400).json({ msg: "Nombre e ISBN son obligatorios" });
-  }
+  const errores = {};
 
-  // 🔥 convertir fecha a YEAR
-  let anio = null;
-  if (publicacion) {
-    anio = new Date(publicacion).getFullYear();
-  }
+  try {
+    const connection = db.promise();
 
-  db.beginTransaction(err => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ msg: "Error iniciando transacción" });
+    // VALIDAR NOMBRE
+    if (!nombre || nombre.trim() === "") {
+      errores.nombre = "El nombre del libro es obligatorio";
     }
 
-    const sqlLibro = `
-      INSERT INTO libro 
-      (isbn, titulo, anioPublicacion, idEditorial, idCategoria)
-      VALUES (?, ?, ?, ?, ?)
-    `;
+    // VALIDAR ISBN
+    if (!isbn || isbn.trim() === "") {
+      errores.isbn = "El ISBN es obligatorio";
+    } else {
+      const [isbnExiste] = await connection.query(
+        "SELECT idLibro FROM libro WHERE isbn = ?",
+        [isbn]
+      );
 
-    db.query(
-      sqlLibro,
+      if (isbnExiste.length > 0) {
+        errores.isbn = "Este ISBN ya está registrado";
+      }
+    }
+
+    // VALIDAR FECHA
+    let anio = null;
+
+    if (!publicacion || publicacion.trim() === "") {
+      errores.publicacion = "Debe ingresar una fecha de publicación";
+    } else {
+      const fecha = new Date(publicacion);
+
+      if (isNaN(fecha.getTime())) {
+        errores.publicacion = "La fecha no es válida";
+      } else {
+        anio = fecha.getFullYear();
+      }
+    }
+
+    // VALIDAR EDITORIAL
+    if (idEditorial) {
+      const [editorial] = await connection.query(
+        "SELECT idEditorial FROM editorial WHERE idEditorial = ?",
+        [idEditorial]
+      );
+
+      if (editorial.length === 0) {
+        errores.idEditorial = "La editorial no existe";
+      }
+    }
+
+    // VALIDAR CATEGORIA
+    if (idCategoria) {
+      const [categoria] = await connection.query(
+        "SELECT idCategoria FROM categoria WHERE idCategoria = ?",
+        [idCategoria]
+      );
+
+      if (categoria.length === 0) {
+        errores.idCategoria = "La categoría no existe";
+      }
+    }
+
+    // VALIDAR AUTORES
+    if (idAutores && idAutores.length > 0) {
+      for (let autor of idAutores) {
+        const [autorExiste] = await connection.query(
+          "SELECT idAutor FROM autor WHERE idAutor = ?",
+          [autor]
+        );
+
+        if (autorExiste.length === 0) {
+          errores.autores = "Uno de los autores no existe";
+          break;
+        }
+      }
+    }
+
+    // SI HAY ERRORES
+    if (Object.keys(errores).length > 0) {
+      return res.status(400).json({
+        msg: "Errores en el formulario",
+        errores
+      });
+    }
+
+    // TRANSACCIÓN
+    await connection.beginTransaction();
+
+    const [result] = await connection.query(
+      `INSERT INTO libro 
+        (isbn, titulo, anioPublicacion, idEditorial, idCategoria)
+        VALUES (?, ?, ?, ?, ?)`,
       [
         isbn,
         nombre,
         anio,
-        idEditorial ? Number(idEditorial) : null,
-        idCategoria ? Number(idCategoria) : null
-      ],
-      (err, result) => {
-        if (err) {
-          console.error("ERROR LIBRO:", err);
-          return db.rollback(() =>
-            res.status(500).json({ msg: "Error insertando libro" })
-          );
-        }
-
-        const idLibro = result.insertId;
-
-        // ✅ sin autores
-        if (!idAutores || idAutores.length === 0) {
-          return db.commit(() =>
-            res.status(201).json({
-              msg: "Libro registrado correctamente",
-              idLibro
-            })
-          );
-        }
-
-        const valores = idAutores.map(idAutor => [
-          idLibro,
-          Number(idAutor)
-        ]);
-
-        db.query(
-          "INSERT INTO libro_autor (idLibro, idAutor) VALUES ?",
-          [valores],
-          err => {
-            if (err) {
-              console.error("ERROR AUTORES:", err);
-              return db.rollback(() =>
-                res.status(500).json({ msg: "Error insertando autores" })
-              );
-            }
-
-            db.commit(() =>
-              res.status(201).json({
-                msg: "Libro registrado correctamente",
-                idLibro
-              })
-            );
-          }
-        );
-      }
+        idEditorial || null,
+        idCategoria || null
+      ]
     );
-  });
+
+    const idLibro = result.insertId;
+
+    if (idAutores && idAutores.length > 0) {
+      const valores = idAutores.map(idAutor => [idLibro, idAutor]);
+
+      await connection.query(
+        "INSERT INTO libro_autor (idLibro, idAutor) VALUES ?",
+        [valores]
+      );
+    }
+
+    await connection.commit();
+
+    res.status(201).json({
+      msg: "Libro registrado correctamente",
+      idLibro
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error en el servidor" });
+  }
 });
 
 // =============================
@@ -457,10 +536,10 @@ app.post("/ejemplar", (req, res) => {
   }
 
   const sql = `
-    INSERT INTO ejemplar
-    (codigoBarra, ubicacionFisica, idLibro, idEstado)
-    VALUES (?, ?, ?, ?)
-  `;
+      INSERT INTO ejemplar
+      (codigoBarra, ubicacionFisica, idLibro, idEstado)
+      VALUES (?, ?, ?, ?)
+    `;
 
   db.query(
     sql,
@@ -529,10 +608,10 @@ app.post("/prestamo", async (req, res) => {
     // 🚫 1️⃣ verificar si usuario tiene multas
     const [multasUsuario] = await connection.query(
       `SELECT m.idMulta
-       FROM multa m
-       JOIN prestamo p ON m.idPrestamo = p.idPrestamo
-       WHERE p.idUsuario = ?
-       AND m.pagada = FALSE`,
+        FROM multa m
+        JOIN prestamo p ON m.idPrestamo = p.idPrestamo
+        WHERE p.idUsuario = ?
+        AND m.pagada = FALSE`,
       [idUsuario]
     );
 
@@ -560,15 +639,15 @@ app.post("/prestamo", async (req, res) => {
     }
 
     // 3️⃣ Fecha límite (7 días)
-   const fechaLimite = new Date();
-//fechaLimite.setDate(fechaLimite.getDate() + 7); // suma 7 días
-fechaLimite.setMinutes(fechaLimite.getMinutes() + 1); // suma 1 minutos
+    const fechaLimite = new Date();
+    //fechaLimite.setDate(fechaLimite.getDate() + 7); // suma 7 días
+    fechaLimite.setMinutes(fechaLimite.getMinutes() + 1); // suma 1 minutos
 
     // 4️⃣ Insertar préstamo
     await connection.query(
       `INSERT INTO prestamo 
-       (idUsuario, idEjemplar, fechaLimite, estado)
-       VALUES (?, ?, ?, 'activo')`,
+        (idUsuario, idEjemplar, fechaLimite, estado)
+        VALUES (?, ?, ?, 'activo')`,
       [idUsuario, idEjemplar, fechaLimite]
     );
 
@@ -593,8 +672,8 @@ fechaLimite.setMinutes(fechaLimite.getMinutes() + 1); // suma 1 minutos
 app.get("/ejemplares-disponibles", (req, res) => {
   db.query(
     `SELECT idEjemplar, codigoBarra 
-     FROM ejemplar 
-     WHERE idEstado = 1`,
+      FROM ejemplar 
+      WHERE idEstado = 1`,
     (err, rows) => {
       if (err) return res.status(500).json({ msg: "Error" });
       res.json(rows);
@@ -618,16 +697,16 @@ app.get("/usuarios", (req, res) => {
   }
 
   let sql = `
-    SELECT 
-      idUsuario,
-      usuario,
-      nombre,
-      apellidoPaterno,
-      apellidoMaterno,
-      activo
-    FROM usuario
-    WHERE 1=1
-  `;
+      SELECT 
+        idUsuario,
+        usuario,
+        nombre,
+        apellidoPaterno,
+        apellidoMaterno,
+        activo
+      FROM usuario
+      WHERE 1=1
+    `;
 
   let valores = [];
 
@@ -638,8 +717,8 @@ app.get("/usuarios", (req, res) => {
 
   if (nombre && nombre.trim() !== "") {
     sql += `
-      AND CONCAT(nombre, ' ', apellidoPaterno, ' ', apellidoMaterno) LIKE ?
-    `;
+        AND CONCAT(nombre, ' ', apellidoPaterno, ' ', apellidoMaterno) LIKE ?
+      `;
     valores.push(`%${nombre}%`);
   }
 
@@ -670,15 +749,15 @@ app.put("/devolucion/:idPrestamo", async (req, res) => {
 
     await connection.query(
       `UPDATE prestamo
-       SET fechaDevolucion = NOW(), estado = 'devuelto'
-       WHERE idPrestamo = ?`,
+        SET fechaDevolucion = NOW(), estado = 'devuelto'
+        WHERE idPrestamo = ?`,
       [idPrestamo]
     );
 
     await connection.query(
       `UPDATE ejemplar
-       SET idEstado = 1
-       WHERE idEjemplar = ?`,
+        SET idEstado = 1
+        WHERE idEjemplar = ?`,
       [prestamo[0].idEjemplar]
     );
     // 🔎 Obtener idLibro del ejemplar devuelto
@@ -692,18 +771,18 @@ app.put("/devolucion/:idPrestamo", async (req, res) => {
     // 🔎 Buscar la reserva activa más antigua
     const [reserva] = await connection.query(
       `SELECT * FROM reserva
-   WHERE idLibro = ?
-   AND estado = 'activa'
-   ORDER BY fechaReserva ASC
-   LIMIT 1`,
+    WHERE idLibro = ?
+    AND estado = 'activa'
+    ORDER BY fechaReserva ASC
+    LIMIT 1`,
       [idLibro]
     );
 
     if (reserva.length > 0) {
       await connection.query(
         `UPDATE reserva
-     SET estado = 'notificada'
-     WHERE idReserva = ?`,
+      SET estado = 'notificada'
+      WHERE idReserva = ?`,
         [reserva[0].idReserva]
       );
     }
@@ -720,13 +799,13 @@ app.post("/revisar-multas", async (req, res) => {
     const connection = db.promise();
 
     const [prestamos] = await connection.query(`
-      SELECT p.idPrestamo, p.fechaLimite
-      FROM prestamo p
-      LEFT JOIN multa m ON p.idPrestamo = m.idPrestamo
-      WHERE p.estado = 'activo'
-      AND p.fechaLimite < NOW()
-      AND m.idMulta IS NULL
-    `);
+        SELECT p.idPrestamo, p.fechaLimite
+        FROM prestamo p
+        LEFT JOIN multa m ON p.idPrestamo = m.idPrestamo
+        WHERE p.estado = 'activo'
+        AND p.fechaLimite < NOW()
+        AND m.idMulta IS NULL
+      `);
 
     for (const p of prestamos) {
       const fechaLimite = new Date(p.fechaLimite);
@@ -740,7 +819,7 @@ app.post("/revisar-multas", async (req, res) => {
 
       await connection.query(
         `INSERT INTO multa (idPrestamo, monto)
-         VALUES (?, ?)`,
+          VALUES (?, ?)`,
         [p.idPrestamo, monto]
       );
     }
@@ -808,10 +887,10 @@ app.get("/usuario-con-multas/:idUsuario", async (req, res) => {
 
     const [multas] = await connection.query(
       `SELECT m.idMulta
-       FROM multa m
-       JOIN prestamo p ON m.idPrestamo = p.idPrestamo
-       WHERE p.idUsuario = ?
-       AND m.pagada = FALSE`,
+        FROM multa m
+        JOIN prestamo p ON m.idPrestamo = p.idPrestamo
+        WHERE p.idUsuario = ?
+        AND m.pagada = FALSE`,
       [idUsuario]
     );
 
@@ -824,18 +903,50 @@ app.get("/usuario-con-multas/:idUsuario", async (req, res) => {
     res.status(500).json({ message: "Error verificando multas" });
   }
 });
+//multas buscar 
+app.get("/multas/buscar/:texto", async (req, res) => {
+  const { texto } = req.params;
 
+  try {
+    const connection = db.promise();
+
+    const [rows] = await connection.query(`
+        SELECT 
+          u.idUsuario,
+          u.nombre,
+          u.usuario,
+
+          COUNT(m.idMulta) AS totalMultas,
+          SUM(CASE WHEN m.pagada = 0 THEN 1 ELSE 0 END) AS multasPendientes
+
+        FROM usuario u
+
+        LEFT JOIN prestamo p ON u.idUsuario = p.idUsuario
+        LEFT JOIN multa m ON p.idPrestamo = m.idPrestamo
+
+        WHERE u.nombre LIKE ? OR u.usuario LIKE ?
+
+        GROUP BY u.idUsuario
+      `, [`%${texto}%`, `%${texto}%`]);
+
+    res.json(rows);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error en el servidor" });
+  }
+});
 //PRESTAMOS ACTIVOS
 app.get("/prestamos-activos", (req, res) => {
   db.query(
     `SELECT 
-        p.idPrestamo,
-        u.nombre AS usuarioNombre,
-        e.codigoBarra
-     FROM prestamo p
-     JOIN usuario u ON p.idUsuario = u.idUsuario
-     JOIN ejemplar e ON p.idEjemplar = e.idEjemplar
-     WHERE p.estado = 'activo'`,
+          p.idPrestamo,
+          u.nombre AS usuarioNombre,
+          e.codigoBarra
+      FROM prestamo p
+      JOIN usuario u ON p.idUsuario = u.idUsuario
+      JOIN ejemplar e ON p.idEjemplar = e.idEjemplar
+      WHERE p.estado = 'activo'`,
     (err, rows) => {
       if (err) return res.status(500).json({ msg: "Error" });
       res.json(rows);
@@ -846,13 +957,13 @@ app.get("/prestamos-activos", (req, res) => {
 app.get("/multas", (req, res) => {
   db.query(
     `SELECT 
-        m.idMulta,
-        m.monto,
-        m.pagada,
-        u.nombre AS usuarioNombre
-     FROM multa m
-     JOIN prestamo p ON m.idPrestamo = p.idPrestamo
-     JOIN usuario u ON p.idUsuario = u.idUsuario`,
+          m.idMulta,
+          m.monto,
+          m.pagada,
+          u.nombre AS usuarioNombre
+      FROM multa m
+      JOIN prestamo p ON m.idPrestamo = p.idPrestamo
+      JOIN usuario u ON p.idUsuario = u.idUsuario`,
     (err, rows) => {
       if (err) return res.status(500).json({ msg: "Error" });
       res.json(rows);
@@ -865,19 +976,19 @@ app.get("/mis-prestamos/:idUsuario", (req, res) => {
 
   db.query(
     `SELECT 
-        p.idPrestamo,
-        l.titulo,
-        e.codigoBarra,
-        p.fechaPrestamo,
-        p.fechaLimite,
-        p.fechaDevolucion,
-        p.estado
-     FROM prestamo p
-     JOIN ejemplar e ON p.idEjemplar = e.idEjemplar
-     JOIN libro l ON e.idLibro = l.idLibro
-     WHERE p.idUsuario = ?
-     ORDER BY p.fechaPrestamo DESC
-     LIMIT 5`,
+          p.idPrestamo,
+          l.titulo,
+          e.codigoBarra,
+          p.fechaPrestamo,
+          p.fechaLimite,
+          p.fechaDevolucion,
+          p.estado
+      FROM prestamo p
+      JOIN ejemplar e ON p.idEjemplar = e.idEjemplar
+      JOIN libro l ON e.idLibro = l.idLibro
+      WHERE p.idUsuario = ?
+      ORDER BY p.fechaPrestamo DESC
+      LIMIT 5`,
     [idUsuario],
     (err, rows) => {
       if (err) return res.status(500).json({ msg: "Error" });
@@ -892,12 +1003,12 @@ app.get("/mis-multas/:idUsuario", (req, res) => {
 
   db.query(
     `SELECT 
-        m.idMulta,
-        m.monto,
-        m.pagada
-     FROM multa m
-     JOIN prestamo p ON m.idPrestamo = p.idPrestamo
-     WHERE p.idUsuario = ?`,
+          m.idMulta,
+          m.monto,
+          m.pagada
+      FROM multa m
+      JOIN prestamo p ON m.idPrestamo = p.idPrestamo
+      WHERE p.idUsuario = ?`,
     [idUsuario],
     (err, rows) => {
       if (err) return res.status(500).json({ msg: "Error" });
@@ -906,14 +1017,45 @@ app.get("/mis-multas/:idUsuario", (req, res) => {
   );
 });
 
+app.get("/multas/usuario/:idUsuario", async (req, res) => {
+  const { idUsuario } = req.params;
+
+  try {
+    const connection = db.promise();
+
+    const [multas] = await connection.query(
+      `
+      SELECT 
+        m.idMulta,
+        m.monto,
+        m.pagada,
+        e.codigoBarra,
+        l.titulo
+      FROM multa m
+      JOIN prestamo p ON m.idPrestamo = p.idPrestamo
+      JOIN ejemplar e ON p.idEjemplar = e.idEjemplar
+      JOIN libro l ON e.idLibro = l.idLibro
+      WHERE p.idUsuario = ?
+      `,
+      [idUsuario]
+    );
+
+    res.json(multas);
+
+  } catch (error) {
+    console.error("Error obteniendo multas:", error);
+    res.status(500).json({ message: "Error en el servidor" });
+  }
+});
+
 app.get("/ejemplares/:idLibro", (req, res) => {
   const { idLibro } = req.params;
 
   const sql = `
-    SELECT idEjemplar, codigoBarra, ubicacionFisica, idEstado
-    FROM ejemplar
-    WHERE idLibro = ?
-  `;
+      SELECT idEjemplar, codigoBarra, ubicacionFisica, idEstado
+      FROM ejemplar
+      WHERE idLibro = ?
+    `;
 
   db.query(sql, [idLibro], (err, results) => {
     if (err) {
@@ -928,13 +1070,13 @@ app.get("/ejemplares/:idLibro", (req, res) => {
 // Obtener TODAS las estanterías
 app.get("/estanterias", (req, res) => {
   const sql = `
-    SELECT 
-      e.idEstanteria,
-      e.nombre,
-      c.nombre AS categoriaNombre
-    FROM estanteria e
-    LEFT JOIN categoria c ON e.idCategoria = c.idCategoria
-  `;
+      SELECT 
+        e.idEstanteria,
+        e.nombre,
+        c.nombre AS categoriaNombre
+      FROM estanteria e
+      LEFT JOIN categoria c ON e.idCategoria = c.idCategoria
+    `;
 
   db.query(sql, (err, results) => {
     if (err) return res.status(500).json(err);
@@ -946,14 +1088,14 @@ app.get("/estanterias/:idCategoria", (req, res) => {
   const { idCategoria } = req.params;
 
   const sql = `
-    SELECT 
-      e.idEstanteria,
-      e.nombre,
-      c.nombre AS categoriaNombre
-    FROM estanteria e
-    JOIN categoria c ON e.idCategoria = c.idCategoria
-    WHERE e.idCategoria = ?
-  `;
+      SELECT 
+        e.idEstanteria,
+        e.nombre,
+        c.nombre AS categoriaNombre
+      FROM estanteria e
+      JOIN categoria c ON e.idCategoria = c.idCategoria
+      WHERE e.idCategoria = ?
+    `;
 
   db.query(sql, [idCategoria], (err, results) => {
     if (err) return res.status(500).json(err);
@@ -978,9 +1120,9 @@ app.post("/estanteria", (req, res) => {
   }
 
   const sql = `
-    INSERT INTO estanteria (nombre, idCategoria)
-    VALUES (?, ?)
-  `;
+      INSERT INTO estanteria (nombre, idCategoria)
+      VALUES (?, ?)
+    `;
 
   db.query(sql, [nombre.trim(), Number(idCategoria)], (err, result) => {
     if (err) {
@@ -1007,30 +1149,36 @@ app.get("/libros/buscar", (req, res) => {
   const { titulo } = req.query;
 
   const sql = `
-    SELECT 
-      l.idLibro,
-      l.titulo,
-      l.anioPublicacion,
+      SELECT 
+        l.idLibro,
+        l.titulo,
+        l.anioPublicacion,
 
-      GROUP_CONCAT(
-        DISTINCT CONCAT(a.nombre, ' ', a.apellidoPaterno, ' ', a.apellidoMaterno)
-        SEPARATOR ', '
-      ) AS autor,
+        c.nombre AS categoria,
+        ed.nombre AS editorial,
 
-      e.idEjemplar,
-      e.codigoBarra,
-      e.ubicacionFisica,
-      e.idEstado
+        GROUP_CONCAT(
+          DISTINCT CONCAT(a.nombre, ' ', a.apellidoPaterno, ' ', a.apellidoMaterno)
+          SEPARATOR ', '
+        ) AS autor,
 
-    FROM libro l
-    LEFT JOIN libro_autor la ON l.idLibro = la.idLibro
-    LEFT JOIN autor a ON la.idAutor = a.idAutor
-    LEFT JOIN ejemplar e ON l.idLibro = e.idLibro
+        e.idEjemplar,
+        e.codigoBarra,
+        e.ubicacionFisica,
+        e.idEstado
 
-    WHERE l.titulo LIKE ?
-    GROUP BY l.idLibro, e.idEjemplar
-    LIMIT 20
-  `;
+      FROM libro l
+
+      LEFT JOIN categoria c ON l.idCategoria = c.idCategoria
+      LEFT JOIN editorial ed ON l.idEditorial = ed.idEditorial
+      LEFT JOIN libro_autor la ON l.idLibro = la.idLibro
+      LEFT JOIN autor a ON la.idAutor = a.idAutor
+      LEFT JOIN ejemplar e ON l.idLibro = e.idLibro
+
+      WHERE l.titulo LIKE ?
+      GROUP BY l.idLibro, e.idEjemplar
+      LIMIT 20
+    `;
 
   db.query(sql, [`${titulo}%`], (err, results) => {
     if (err) {
@@ -1038,28 +1186,39 @@ app.get("/libros/buscar", (req, res) => {
       return res.status(500).json(err);
     }
 
-    // 🔥 AGRUPAR EJEMPLARES POR LIBRO
     const libros = {};
 
     results.forEach(row => {
+
       if (!libros[row.idLibro]) {
         libros[row.idLibro] = {
           idLibro: row.idLibro,
           titulo: row.titulo,
           anioPublicacion: row.anioPublicacion,
           autor: row.autor,
+          categoria: row.categoria,
+          editorial: row.editorial,
           ejemplares: []
         };
       }
 
       if (row.idEjemplar) {
-        libros[row.idLibro].ejemplares.push({
-          idEjemplar: row.idEjemplar,
-          codigoBarra: row.codigoBarra,
-          ubicacionFisica: row.ubicacionFisica,
-          idEstado: row.idEstado
-        });
+
+        const yaExiste = libros[row.idLibro].ejemplares.some(
+          e => e.idEjemplar === row.idEjemplar
+        );
+
+        if (!yaExiste) {
+          libros[row.idLibro].ejemplares.push({
+            idEjemplar: row.idEjemplar,
+            codigoBarra: row.codigoBarra,
+            ubicacionFisica: row.ubicacionFisica,
+            idEstado: row.idEstado
+          });
+        }
+
       }
+
     });
 
     res.json(Object.values(libros));
@@ -1074,11 +1233,11 @@ app.get("/usuarios/buscar", (req, res) => {
   }
 
   const sql = `
-    SELECT idUsuario, nombre, usuario
-    FROM usuario
-    WHERE nombre LIKE ? OR usuario LIKE ?
-    LIMIT 10
-  `;
+      SELECT idUsuario, nombre, usuario
+      FROM usuario
+      WHERE nombre LIKE ? OR usuario LIKE ?
+      LIMIT 10
+    `;
 
   db.query(sql, [`%${nombre}%`, `%${nombre}%`], (err, results) => {
     if (err) return res.status(500).json(err);
@@ -1108,9 +1267,9 @@ app.post("/reserva/aceptar/:idReserva", async (req, res) => {
     // 2️⃣ Buscar ejemplar disponible
     const [ejemplar] = await connection.query(
       `SELECT * FROM ejemplar
-       WHERE idLibro = ?
-       AND idEstado = 1
-       LIMIT 1 FOR UPDATE`,
+        WHERE idLibro = ?
+        AND idEstado = 1
+        LIMIT 1 FOR UPDATE`,
       [r.idLibro]
     );
 
@@ -1127,8 +1286,8 @@ app.post("/reserva/aceptar/:idReserva", async (req, res) => {
 
     await connection.query(
       `INSERT INTO prestamo
-       (idUsuario, idEjemplar, fechaLimite, estado)
-       VALUES (?, ?, ?, 'activo')`,
+        (idUsuario, idEjemplar, fechaLimite, estado)
+        VALUES (?, ?, ?, 'activo')`,
       [r.idUsuario, ejemplar[0].idEjemplar, fechaLimite]
     );
 
@@ -1159,10 +1318,10 @@ app.get("/mis-reservas/:idUsuario", (req, res) => {
 
   db.query(
     `SELECT r.idReserva, r.estado, l.titulo
-     FROM reserva r
-     JOIN libro l ON r.idLibro = l.idLibro
-     WHERE r.idUsuario = ?
-     AND r.estado != 'completada'`,
+      FROM reserva r
+      JOIN libro l ON r.idLibro = l.idLibro
+      WHERE r.idUsuario = ?
+      AND r.estado != 'completada'`,
     [idUsuario],
     (err, rows) => {
       if (err) return res.status(500).json({ msg: "Error" });
@@ -1186,9 +1345,9 @@ app.post("/reserva", async (req, res) => {
     // 🔎 Verificar que no tenga reserva activa
     const [existe] = await connection.query(
       `SELECT * FROM reserva
-       WHERE idUsuario = ?
-       AND idLibro = ?
-       AND estado IN ('activa', 'notificada')`,
+        WHERE idUsuario = ?
+        AND idLibro = ?
+        AND estado IN ('activa', 'notificada')`,
       [idUsuario, idLibro]
     );
 
@@ -1201,7 +1360,7 @@ app.post("/reserva", async (req, res) => {
     // ✅ Insertar reserva
     await connection.query(
       `INSERT INTO reserva (idUsuario, idLibro, estado)
-       VALUES (?, ?, 'activa')`,
+        VALUES (?, ?, 'activa')`,
       [idUsuario, idLibro]
     );
 
@@ -1212,6 +1371,355 @@ app.post("/reserva", async (req, res) => {
     res.status(500).json({ message: "Error creando reserva" });
   }
 });
+
+//ELiminar general
+app.delete("/autor/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const connection = db.promise();
+
+    const [libros] = await connection.query(
+      "SELECT * FROM libro_autor WHERE idAutor = ?",
+      [id]
+    );
+
+    if (libros.length > 0) {
+      return res.status(400).json({
+        message: "No se puede eliminar el autor porque tiene libros asociados"
+      });
+    }
+
+    await connection.query(
+      "DELETE FROM autor WHERE idAutor = ?",
+      [id]
+    );
+
+    res.json({ message: "Autor eliminado correctamente" });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete("/libro/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const connection = db.promise();
+
+    const [ejemplares] = await connection.query(
+      "SELECT * FROM ejemplar WHERE idLibro = ?",
+      [id]
+    );
+
+    if (ejemplares.length > 0) {
+      return res.status(400).json({
+        message: "No se puede eliminar el libro porque tiene ejemplares registrados"
+      });
+    }
+
+    await connection.query(
+      "DELETE FROM libro_autor WHERE idLibro = ?",
+      [id]
+    );
+
+    await connection.query(
+      "DELETE FROM libro WHERE idLibro = ?",
+      [id]
+    );
+
+    res.json({ message: "Libro eliminado correctamente" });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete("/editorial/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const connection = db.promise();
+
+    const [libros] = await connection.query(
+      "SELECT * FROM libro WHERE idEditorial = ?",
+      [id]
+    );
+
+    if (libros.length > 0) {
+      return res.status(400).json({
+        message: "No se puede eliminar la editorial porque tiene libros asociados"
+      });
+    }
+
+    await connection.query(
+      "DELETE FROM editorial WHERE idEditorial = ?",
+      [id]
+    );
+
+    res.json({ message: "Editorial eliminada correctamente" });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete("/categoria/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const connection = db.promise();
+
+    const [libros] = await connection.query(
+      "SELECT * FROM libro WHERE idCategoria = ?",
+      [id]
+    );
+
+    const [estanterias] = await connection.query(
+      "SELECT * FROM estanteria WHERE idCategoria = ?",
+      [id]
+    );
+
+    if (libros.length > 0 || estanterias.length > 0) {
+      return res.status(400).json({
+        message: "No se puede eliminar la categoría porque está en uso"
+      });
+    }
+
+    await connection.query(
+      "DELETE FROM categoria WHERE idCategoria = ?",
+      [id]
+    );
+
+    res.json({ message: "Categoría eliminada correctamente" });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete("/estanteria/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const connection = db.promise();
+
+    // Obtener el nombre de la estantería
+    const [estanteria] = await connection.query(
+      "SELECT nombre FROM estanteria WHERE idEstanteria = ?",
+      [id]
+    );
+
+    if (estanteria.length === 0) {
+      return res.status(404).json({
+        message: "Estantería no encontrada"
+      });
+    }
+
+    const nombreEstanteria = estanteria[0].nombre;
+
+    // Verificar si hay ejemplares
+    const [ejemplares] = await connection.query(
+      "SELECT * FROM ejemplar WHERE ubicacionFisica = ?",
+      [nombreEstanteria]
+    );
+
+    if (ejemplares.length > 0) {
+      return res.status(400).json({
+        message: "No se puede eliminar la estantería porque tiene ejemplares"
+      });
+    }
+
+    await connection.query(
+      "DELETE FROM estanteria WHERE idEstanteria = ?",
+      [id]
+    );
+
+    res.json({
+      message: "Estantería eliminada correctamente"
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error en el servidor"
+    });
+  }
+});
+
+// =============================
+// REGISTRO BIBLIOTECARIO
+// =============================
+app.post("/bibliotecario", async (req, res) => {
+  try {
+    const { usuario, nombre, apellidoPaterno, apellidoMaterno, correo, contraseña } = req.body;
+
+    const idRol = 2; // bibliotecario
+    const activo = 1;
+
+    if (!usuario || !nombre || !apellidoPaterno || !correo || !contraseña) {
+      return res.status(400).json({ msg: "Todos los campos obligatorios" });
+    }
+
+    if (contraseña.length < 6 || contraseña.length > 16) {
+      return res.status(400).json({ msg: "La contraseña debe tener entre 6 y 16 caracteres" });
+    }
+
+    // Verificar si usuario ya existe
+    const checkUser = `SELECT idUsuario FROM usuario WHERE BINARY usuario = ?`;
+    db.query(checkUser, [usuario], async (err, results) => {
+      if (results.length > 0) {
+        return res.status(400).json({ msg: "El usuario ya está en uso, usa otro" });
+      }
+
+      const hashedPass = await bcrypt.hash(contraseña, 10);
+
+      const sql = `
+        INSERT INTO usuario
+        (usuario, nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, idRol, activo)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+
+      db.query(
+        sql,
+        [
+          usuario,
+          nombre,
+          apellidoPaterno,
+          apellidoMaterno || null,
+          correo || null,
+          hashedPass,
+          idRol,
+          activo
+        ],
+        (err, result) => {
+          if (err) {
+            if (err.code === "ER_DUP_ENTRY") {
+              if (err.sqlMessage.includes("correo")) {
+                return res.status(400).json({ msg: "El correo ya está registrado, usa otro" });
+              }
+              if (err.sqlMessage.includes("usuario")) {
+                return res.status(400).json({ msg: "El usuario ya está en uso, elige otro" });
+              }
+            }
+            console.error("ERROR SQL:", err);
+            return res.status(500).json({ msg: "Error al registrar bibliotecario" });
+          }
+
+          res.status(201).json({ msg: "Bibliotecario registrado correctamente", id: result.insertId });
+        }
+      );
+    });
+
+  } catch (error) {
+    console.error("Error servidor:", error);
+    res.status(500).json({ msg: "Error del servidor" });
+  }
+});
+
+// =============================
+// REGISTRO ADMINISTRADOR
+// =============================
+// =============================
+// REGISTRO ADMINISTRADOR
+// =============================
+app.post("/administrador", async (req, res) => {
+  try {
+    const { usuario, nombre, apellidoPaterno, apellidoMaterno, correo, contraseña } = req.body;
+
+    const idRol = 1; // administrador
+    const activo = 1;
+
+    if (!usuario || !nombre || !apellidoPaterno || !correo || !contraseña) {
+      return res.status(400).json({ msg: "Todos los campos obligatorios" });
+    }
+
+    if (contraseña.length < 6 || contraseña.length > 16) {
+      return res.status(400).json({ msg: "La contraseña debe tener entre 6 y 16 caracteres" });
+    }
+
+    // Verificar si usuario ya existe
+    const checkUser = `SELECT idUsuario FROM usuario WHERE BINARY usuario = ?`;
+
+    db.query(checkUser, [usuario], async (err, results) => {
+
+      if (err) {
+        console.error("ERROR SQL:", err);
+        return res.status(500).json({ msg: "Error al verificar usuario" });
+      }
+
+      if (results.length > 0) {
+        return res.status(400).json({ msg: "El usuario ya está en uso, usa otro" });
+      }
+
+      const hashedPass = await bcrypt.hash(contraseña, 10);
+
+      const sql = `
+        INSERT INTO usuario
+        (usuario, nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, idRol, activo)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+
+      db.query(
+        sql,
+        [
+          usuario,
+          nombre,
+          apellidoPaterno,
+          apellidoMaterno || null,
+          correo || null,
+          hashedPass,
+          idRol,
+          activo
+        ],
+        (err, result) => {
+
+          if (err) {
+
+            if (err.code === "ER_DUP_ENTRY") {
+
+              if (err.sqlMessage.includes("correo")) {
+                return res.status(400).json({
+                  msg: "El correo ya está registrado, usa otro"
+                });
+              }
+
+              if (err.sqlMessage.includes("usuario")) {
+                return res.status(400).json({
+                  msg: "El usuario ya está en uso, elige otro"
+                });
+              }
+
+            }
+
+            console.error("ERROR SQL:", err);
+            return res.status(500).json({
+              msg: "Error al registrar administrador"
+            });
+          }
+
+          res.status(201).json({
+            msg: "Administrador registrado correctamente",
+            id: result.insertId
+          });
+
+        }
+      );
+
+    });
+
+  } catch (error) {
+
+    console.error("Error servidor:", error);
+
+    res.status(500).json({
+      msg: "Error del servidor"
+    });
+
+  }
+});
+
 
 const PORT = 3001;
 app.listen(PORT, () =>

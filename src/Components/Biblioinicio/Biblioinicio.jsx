@@ -10,10 +10,13 @@ export const Biblioinicio = () => {
   const [categorias, setCategorias] = useState([]);
   const [autores, setAutores] = useState([]);
   const [estanterias, setEstanterias] = useState([]);
-  const [vista, setVista] = useState("inicio");
+  //nueva vista
+  const [modulo, setModulo] = useState("inicio");
+  const [accion, setAccion] = useState("");
   const [busquedaUsuario, setBusquedaUsuario] = useState("");
   const [usuariosEncontrados, setUsuariosEncontrados] = useState([]);
-
+  const [busquedaMulta, setBusquedaMulta] = useState("");
+  const [usuariosMultas, setUsuariosMultas] = useState([]);
   // Estados
   const [usuarios, setUsuarios] = useState([]);
   const [ejemplaresDisponibles, setEjemplaresDisponibles] = useState([]);
@@ -23,18 +26,69 @@ export const Biblioinicio = () => {
     nombre: "",
     idCategoria: ""
   });
+  const [estanteriasFiltradas, setEstanteriasFiltradas] = useState([]);
+  const [usuarioMultaSeleccionado, setUsuarioMultaSeleccionado] = useState(null);
 
   // BUSQUEDA USUARIO PRESTAMO
   const [busquedaUsuarioPrestamo, setBusquedaUsuarioPrestamo] = useState("");
   const [usuariosEncontradosPrestamo, setUsuariosEncontradosPrestamo] = useState([]);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
 
+  // Búsqueda para eliminación
+  const [busquedaAutor, setBusquedaAutor] = useState("");
+  const [autoresFiltrados, setAutoresFiltrados] = useState([]);
+
+  const [busquedaEditorial, setBusquedaEditorial] = useState("");
+  const [editorialesFiltradas, setEditorialesFiltradas] = useState([]);
+
+  const [busquedaCategoria, setBusquedaCategoria] = useState("");
+  const [categoriasFiltradas, setCategoriasFiltradas] = useState([]);
+
   // BUSQUEDA LIBRO PRESTAMO
   const [busquedaLibroPrestamo, setBusquedaLibroPrestamo] = useState("");
   const [librosEncontradosPrestamo, setLibrosEncontradosPrestamo] = useState([]);
   const [libroSeleccionadoPrestamo, setLibroSeleccionadoPrestamo] = useState(null);
   const [ejemplaresDisponiblesLibro, setEjemplaresDisponiblesLibro] = useState([]);
+  // Filtrar autores
+  const filtrarAutores = (texto) => {
+    setBusquedaAutor(texto);
+    if (!texto.trim()) {
+      setAutoresFiltrados([]);
+      return;
+    }
+    const filtrados = autores.filter((a) =>
+      `${a.nombre} ${a.apellidoPaterno} ${a.apellidoMaterno}`
+        .toLowerCase()
+        .includes(texto.toLowerCase())
+    );
+    setAutoresFiltrados(filtrados);
+  };
 
+  // Filtrar editoriales
+  const filtrarEditoriales = (texto) => {
+    setBusquedaEditorial(texto);
+    if (!texto.trim()) {
+      setEditorialesFiltradas([]);
+      return;
+    }
+    const filtrados = editoriales.filter((e) =>
+      e.nombre.toLowerCase().includes(texto.toLowerCase())
+    );
+    setEditorialesFiltradas(filtrados);
+  };
+
+  // Filtrar categorías
+  const filtrarCategorias = (texto) => {
+    setBusquedaCategoria(texto);
+    if (!texto.trim()) {
+      setCategoriasFiltradas([]);
+      return;
+    }
+    const filtrados = categorias.filter((c) =>
+      c.nombre.toLowerCase().includes(texto.toLowerCase())
+    );
+    setCategoriasFiltradas(filtrados);
+  };
   const buscarUsuariosPrestamo = async (texto) => {
     setBusquedaUsuarioPrestamo(texto);
 
@@ -140,6 +194,128 @@ export const Biblioinicio = () => {
       console.error("Error buscando usuarios:", error);
     }
   };
+  // =============================
+  // ELIMINAR AUTOR
+  // =============================
+  const eliminarAutor = async (id) => {
+    if (!window.confirm("¿Seguro que quieres eliminar este autor?")) return;
+
+    try {
+      const res = await fetch(`http://localhost:3001/autor/${id}`, {
+        method: "DELETE"
+      });
+
+      const data = await res.json();
+      alert(data.message);
+
+      cargarDatos();
+
+    } catch (error) {
+      console.error(error);
+      alert("Error eliminando autor");
+    }
+  };
+
+  // =============================
+  // ELIMINAR LIBRO
+  // =============================
+  const eliminarLibro = async (id) => {
+    if (!window.confirm("¿Seguro que quieres eliminar este libro?")) return;
+
+    try {
+      const res = await fetch(`http://localhost:3001/libro/${id}`, {
+        method: "DELETE"
+      });
+
+      const data = await res.json();
+      alert(data.message);
+
+      cargarDatos();
+
+    } catch (error) {
+      console.error(error);
+      alert("Error eliminando libro");
+    }
+  };
+
+  // =============================
+  // ELIMINAR EDITORIAL
+  // =============================
+  const eliminarEditorial = async (id) => {
+    if (!window.confirm("¿Seguro que quieres eliminar esta editorial?")) return;
+
+    try {
+      const res = await fetch(`http://localhost:3001/editorial/${id}`, {
+        method: "DELETE"
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message);
+        return;
+      }
+
+      alert(data.message);
+      cargarDatos();
+
+    } catch (error) {
+      console.error(error);
+      alert("Error eliminando editorial");
+    }
+  };
+
+  // =============================
+  // ELIMINAR CATEGORIA
+  // =============================
+  const eliminarCategoria = async (id) => {
+    if (!window.confirm("¿Seguro que quieres eliminar esta categoría?")) return;
+
+    try {
+      const res = await fetch(`http://localhost:3001/categoria/${id}`, {
+        method: "DELETE"
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message);
+        return;
+      }
+
+      alert(data.message);
+      cargarDatos();
+
+    } catch (error) {
+      console.error(error);
+      alert("Error eliminando categoría");
+    }
+  };
+
+  // =============================
+  // ELIMINAR ESTANTERIA
+  // =============================
+  const eliminarEstanteria = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:3001/estanteria/${id}`, {
+        method: "DELETE"
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message);
+        return;
+      }
+
+      alert(data.message);
+      cargarEstanterias();
+
+    } catch (error) {
+      console.error(error);
+      alert("Error al eliminar estantería");
+    }
+  };
   //BUSCAR LIBRO_EJEMPLAR
   const [busquedaLibro, setBusquedaLibro] = useState("");
   const [librosEncontrados, setLibrosEncontrados] = useState([]);
@@ -173,10 +349,10 @@ export const Biblioinicio = () => {
     setEjemplares(data);
   };
   useEffect(() => {
-    if (vista === "consultaEstanterias") {
+    if (accion === "consultarEstanterias" || accion === "eliminarEstanteria") {
       cargarEstanterias();
     }
-  }, [vista]);
+  }, [accion]);
   //buscar usuario
   const buscarUsuariosAuto = async (texto) => {
     setBusquedaUsuario(texto);
@@ -215,6 +391,47 @@ export const Biblioinicio = () => {
       console.error("Error cargando usuarios:", error);
     }
   };
+  const buscarMultasUsuario = async (texto) => {
+    setBusquedaMulta(texto);
+    setUsuarioMultaSeleccionado(null);
+
+    if (texto.length < 2) {
+      setUsuariosMultas([]);
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `http://localhost:3001/usuarios/buscar?nombre=${texto}`
+      );
+
+      const data = await res.json();
+      setUsuariosMultas(data);
+
+    } catch (error) {
+      console.error("Error buscando usuarios:", error);
+    }
+  };
+  //
+  const seleccionarUsuarioMulta = async (usuario) => {
+
+    setUsuarioMultaSeleccionado(usuario);
+    setBusquedaMulta(usuario.nombre);
+    setUsuariosMultas([]);
+
+    try {
+
+      const res = await fetch(
+        `http://localhost:3001/multas/usuario/${usuario.idUsuario}`
+      );
+
+      const data = await res.json();
+      setMultas(data);
+
+    } catch (error) {
+      console.error("Error cargando multas:", error);
+    }
+  };
 
   //OBTENER DATOS, EDITORIAL, CATEGORIAS,AUTORES
   useEffect(() => {
@@ -232,6 +449,7 @@ export const Biblioinicio = () => {
         ejDispRes,
         prestRes,
         multasRes,
+        estanteriasRes
 
       ] = await Promise.all([
         fetch("http://localhost:3001/editoriales"),
@@ -242,6 +460,7 @@ export const Biblioinicio = () => {
         fetch("http://localhost:3001/ejemplares-disponibles"),
         fetch("http://localhost:3001/prestamos-activos"),
         fetch("http://localhost:3001/multas"),
+        fetch("http://localhost:3001/estanterias")
 
 
       ]);
@@ -254,6 +473,7 @@ export const Biblioinicio = () => {
       setEjemplaresDisponibles(await ejDispRes.json());
       setPrestamosActivos(await prestRes.json());
       setMultas(await multasRes.json());
+      setEstanterias(await estanteriasRes.json());
 
 
     } catch (error) {
@@ -283,7 +503,7 @@ export const Biblioinicio = () => {
   const pagarMulta = async (idMulta, monto) => {
     try {
       const res = await fetch(`http://localhost:3001/pagar-multa/${idMulta}`, {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json"
         },
@@ -333,7 +553,22 @@ export const Biblioinicio = () => {
       });
 
       const data = await res.json();
+
+      // 🔴 SI HAY ERRORES DE VALIDACIÓN
+      if (!res.ok) {
+
+        if (data.errores) {
+          const mensajes = Object.values(data.errores).join("\n");
+          alert(mensajes);
+        } else {
+          alert(data.msg || "Error registrando libro");
+        }
+
+        return;
+      }
+
       alert(data.msg || "Libro registrado");
+
       await cargarDatos();
 
       setLibro({
@@ -344,6 +579,7 @@ export const Biblioinicio = () => {
         idCategoria: "",
         idAutores: []
       });
+
     } catch (err) {
       console.error(err);
       alert("Error registrando libro");
@@ -458,46 +694,46 @@ export const Biblioinicio = () => {
   };
   //estanterias 
   // =============================
-// ESTANTERIA
-// =============================
-const registrarEstanteria = async () => {
+  // ESTANTERIA
+  // =============================
+  const registrarEstanteria = async () => {
 
-  if (!estanteria.nombre.trim() || !estanteria.idCategoria) {
-    alert("Debes llenar todos los campos");
-    return;
-  }
-
-  try {
-    const res = await fetch("http://localhost:3001/estanteria", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(estanteria)
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.msg || "Error registrando estantería");
+    if (!estanteria.nombre.trim() || !estanteria.idCategoria) {
+      alert("Debes llenar todos los campos");
       return;
     }
 
-    alert("Estantería registrada correctamente");
+    try {
+      const res = await fetch("http://localhost:3001/estanteria", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(estanteria)
+      });
 
-    setEstanteria({
-      nombre: "",
-      idCategoria: ""
-    });
+      const data = await res.json();
 
-    await cargarEstanterias();
+      if (!res.ok) {
+        alert(data.msg || "Error registrando estantería");
+        return;
+      }
 
-  } catch (err) {
-    console.error(err);
-    alert("Error de conexión con el servidor");
-  }
-};
+      alert("Estantería registrada correctamente");
+
+      setEstanteria({
+        nombre: "",
+        idCategoria: ""
+      });
+
+      await cargarEstanterias();
+
+    } catch (err) {
+      console.error(err);
+      alert("Error de conexión con el servidor");
+    }
+  };
 
   // =============================
   // AUTOR
@@ -555,67 +791,128 @@ const registrarEstanteria = async () => {
   // =============================
   const generarPrestamo = async () => {
 
-  if (!prestamo.idUsuario || !prestamo.idEjemplar) {
-    alert("Debes seleccionar usuario y ejemplar");
-    return;
-  }
+    if (!prestamo.idUsuario || !prestamo.idEjemplar) {
+      alert("Debes seleccionar usuario y ejemplar");
+      return;
+    }
 
-  try {
-    const res = await fetch("http://localhost:3001/prestamo", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(prestamo)
-    });
+    try {
+      const res = await fetch("http://localhost:3001/prestamo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(prestamo)
+      });
 
-    const data = await res.json();
-    alert(data.message || "Préstamo generado");
+      const data = await res.json();
+      alert(data.message || "Préstamo generado");
 
-    await cargarDatos();
+      await cargarDatos();
 
-    // 🔥 RESET COMPLETO DEL FORMULARIO
-    setPrestamo({ idUsuario: "", idEjemplar: "" });
-    setUsuarioSeleccionado(null);
-    setLibroSeleccionadoPrestamo(null);
-    setBusquedaUsuarioPrestamo("");
-    setBusquedaLibroPrestamo("");
-    setUsuariosEncontradosPrestamo([]);
-    setLibrosEncontradosPrestamo([]);
-    setEjemplaresDisponiblesLibro([]);
+      // 🔥 RESET COMPLETO DEL FORMULARIO
+      setPrestamo({ idUsuario: "", idEjemplar: "" });
+      setUsuarioSeleccionado(null);
+      setLibroSeleccionadoPrestamo(null);
+      setBusquedaUsuarioPrestamo("");
+      setBusquedaLibroPrestamo("");
+      setUsuariosEncontradosPrestamo([]);
+      setLibrosEncontradosPrestamo([]);
+      setEjemplaresDisponiblesLibro([]);
 
-  } catch (err) {
-    console.error(err);
-    alert("Error generando préstamo");
-  }
-};
+    } catch (err) {
+      console.error(err);
+      alert("Error generando préstamo");
+    }
+  };
 
+  const verMultasUsuario = async (idUsuario) => {
+    try {
+
+      const res = await fetch(
+        `http://localhost:3001/multas/usuario/${idUsuario}`
+      );
+
+      const data = await res.json();
+
+      setMultas(data);
+
+    } catch (error) {
+      console.error("Error cargando multas:", error);
+    }
+  };
 
 
   return (
     <div className="dashboard">
       <div className="sidebar">
-        <h2>Biblioteca</h2>
-        <button onClick={() => setVista("libro")}>Añadir libro</button>
-        <button onClick={() => setVista("ejemplar")}>Añadir ejemplar</button>
-        <button onClick={() => setVista("editorial")}>Añadir editorial</button>
-        <button onClick={() => setVista("autor")}>Añadir autor</button>
-        <button onClick={() => setVista("prestamo")}>Generar préstamo</button>
-        <button onClick={() => setVista("categoria")}>Añadir categoria</button>
-        <button onClick={() => setVista("devolucion")}>Hacer una devolucion</button>
-        <button onClick={() => setVista("multas")}>Multas</button>
-        <button onClick={() => setVista("usuarios")}>Usuarios</button>
-        <button onClick={() => setVista("consultaLibros")}> Consultar libros</button>
-        <button onClick={() => setVista("estanteria")}>Estanterías</button>
-        <button onClick={() => setVista("consultaEstanterias")}>Consultar Estanterías</button>
+        <h2>Biblioteca</h2>{/*cambiarModulo("libros")}>📚 Libros</button>*/}
+
+        <button onClick={() => { setModulo("libros"); setAccion(""); }}>📚 Libros</button>
+        <button onClick={() => { setModulo("autores"); setAccion(""); }}>✍️ Autores</button>
+        <button onClick={() => { setModulo("editoriales"); setAccion(""); }}>🏢 Editoriales</button>
+        <button onClick={() => { setModulo("categorias"); setAccion(""); }}>🏷 Categorías</button>
+        <button onClick={() => { setModulo("estanterias"); setAccion(""); }}>🗄 Estanterías</button>
+        <button onClick={() => { setModulo("prestamos"); setAccion(""); }}>📖 Préstamos</button>
+        <button onClick={() => { setModulo("usuarios"); setAccion(""); }}>👤 Usuarios</button>
+        <button onClick={() => { setModulo("multas"); setAccion(""); }}>💰 Multas</button>
       </div>
+      <div className="submenu">
 
+        {modulo === "libros" && (
+          <>
+            <button onClick={() => setAccion("agregarLibro")}>Agregar libro</button>
+            <button onClick={() => setAccion("consultarLibros")}>Consultar libros</button>
+            <button onClick={() => setAccion("ejemplar")}>Añadir ejemplar</button>
+          </>
+        )}
+
+        {modulo === "autores" && (
+          <>
+            <button onClick={() => setAccion("agregarAutor")}>Agregar autor</button>
+            <button onClick={() => setAccion("consultarAutores")}>Consultar autores</button>
+            <button onClick={() => setAccion("eliminarAutor")}>Eliminar autor</button>
+          </>
+        )}
+
+        {modulo === "editoriales" && (
+          <>
+            <button onClick={() => setAccion("agregarEditorial")}>Agregar editorial</button>
+            <button onClick={() => setAccion("consultarEditorial")}>Consultar editoriales</button>
+            <button onClick={() => setAccion("eliminarEditorial")}>Eliminar editorial</button>
+          </>
+        )}
+
+        {modulo === "categorias" && (
+          <>
+            <button onClick={() => setAccion("agregarCategoria")}>Agregar categoría</button>
+            <button onClick={() => setAccion("consultarCategoria")}>Consultar categorías</button>
+            <button onClick={() => setAccion("eliminarCategoria")}>Eliminar categoría</button>
+          </>
+        )}
+
+        {modulo === "estanterias" && (
+          <>
+            <button onClick={() => setAccion("agregarEstanteria")}>Agregar estantería</button>
+            <button onClick={() => setAccion("consultarEstanterias")}>Consultar estanterías</button>
+
+          </>
+        )}
+
+        {modulo === "prestamos" && (
+          <>
+            <button onClick={() => setAccion("generarPrestamo")}>Generar préstamo</button>
+            <button onClick={() => setAccion("devolucion")}>Devolución</button>
+          </>
+        )}
+
+      </div>
       <div className="contenido">
-        {vista === "inicio" && <h1>Bienvenido al sistema</h1>}
+        {modulo === "inicio" && <h1>Bienvenido al sistema</h1>}
 
 
-        {vista === "libro" && (
+        {accion === "agregarLibro" && (
           <div className="card">
             <h2>Registrar un libro</h2>
 
@@ -706,7 +1003,7 @@ const registrarEstanteria = async () => {
         )}
 
         {/*EJEMPLAR*/}
-        {vista === "ejemplar" && (
+        {accion === "ejemplar" && (
           <div className="card">
             <h2>Registrar Ejemplar</h2>
 
@@ -719,8 +1016,14 @@ const registrarEstanteria = async () => {
               }
             />
 
-            <select value={ejemplar.ubicacionFisica} onChange={(e) => setEjemplar({ ...ejemplar, ubicacionFisica: e.target.value })}>
+            <select
+              value={ejemplar.ubicacionFisica}
+              onChange={(e) =>
+                setEjemplar({ ...ejemplar, ubicacionFisica: e.target.value })
+              }
+            >
               <option value="">Selecciona estantería</option>
+
               {estanterias.map((e) => (
                 <option key={e.idEstanteria} value={e.nombre}>
                   {e.nombre}
@@ -746,7 +1049,7 @@ const registrarEstanteria = async () => {
                 );
 
                 const data = await res.json();
-                setEstanterias(data);
+                setEstanteriasFiltradas(data);
               }}
             >
 
@@ -777,7 +1080,7 @@ const registrarEstanteria = async () => {
         )}
 
         {/* CATEGORIA */}
-        {vista === "categoria" && (
+        {accion === "agregarCategoria" && (
           <div className="card">
             <h2>Registrar una categoria</h2>
             <input
@@ -792,7 +1095,7 @@ const registrarEstanteria = async () => {
 
 
         {/* EDITORIAL */}
-        {vista === "editorial" && (
+        {accion === "agregarEditorial" && (
           <div className="card">
             <h2>Registrar Editorial</h2>
             <input
@@ -806,7 +1109,7 @@ const registrarEstanteria = async () => {
         )}
 
         {/* AUTOR */}
-        {vista === "autor" && (
+        {accion === "agregarAutor" && (
           <div className="card">
             <h2>Registrar Autor</h2>
 
@@ -842,7 +1145,7 @@ const registrarEstanteria = async () => {
         )}
 
         {/* PRESTAMO */}
-        {vista === "prestamo" && (
+        {accion === "generarPrestamo" && (
           <div className="card">
             <h2>Generar Préstamo</h2>
 
@@ -925,7 +1228,7 @@ const registrarEstanteria = async () => {
         )}
 
         {/*DEVOLUCION */}
-        {vista === "devolucion" && (
+        {accion === "devolucion" && (
           <div className="card">
             <h2>Préstamos Activos</h2>
 
@@ -945,31 +1248,75 @@ const registrarEstanteria = async () => {
         )}
 
         {/*MULTA */}
-        {vista === "multas" && (
+        {modulo === "multas" && (
           <div className="card">
-            <h2>Multas</h2>
+            <h2>Consultar multas</h2>
 
-            {multas.map((m) => (
-              <div key={m.idMulta}>
-                <p>
-                  Usuario: {m.usuarioNombre} |
-                  Monto: ${m.monto} |
-                  Estado: {m.pagada ? "Pagada" : "Pendiente"}
-                </p>
+            <input
+              type="text"
+              placeholder="Buscar usuario..."
+              value={busquedaMulta}
+              onChange={(e) => buscarMultasUsuario(e.target.value)}
+            />
 
-                {!m.pagada && (
-                  <button onClick={() => pagarMulta(m.idMulta, m.monto)}>
-                    Pagar
-                  </button>
-                )}
+            {/* AUTOCOMPLETADO */}
+            {usuariosMultas.length > 0 && (
+              <div className="dropdown-libros">
+                {usuariosMultas.map((u) => (
+                  <div
+                    key={u.idUsuario}
+                    className="item-libro"
+                    onClick={() => seleccionarUsuarioMulta(u)}
+                  >
+                    {u.nombre} | @{u.usuario}
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
+
+            {/* RESULTADO MULTAS */}
+            {usuarioMultaSeleccionado && (
+              <div className="lista-multas">
+
+
+                <h3>Multas de {usuarioMultaSeleccionado.nombre}</h3>
+
+                {multas.length === 0 && (
+                  <p>Este usuario no tiene multas.</p>
+                )}
+
+                {multas.map((m) => (
+                  <div key={m.idMulta} className="item-multa">
+
+                    <p><b>Libro:</b> {m.titulo}</p>
+
+                    <p><b>Ejemplar:</b> {m.codigoBarra}</p>
+
+                    <p><b>Monto:</b> ${m.monto}</p>
+
+                    <p>
+                      <b>Estado:</b> {m.pagada ? "Pagada" : "Pendiente"}
+                    </p>
+
+                    {!m.pagada && (
+                      <button
+                        onClick={() => pagarMulta(m.idMulta, m.monto)}
+                      >
+                        Pagar multa
+                      </button>
+                    )}
+
+                  </div>
+                ))}
+
+              </div>
+            )}
           </div>
         )}
 
         {/*USUARIOS BLOQUEADOS */}
         {/* USUARIOS BLOQUEADOS */}
-        {vista === "usuarios" && (
+        {modulo === "usuarios" && (
           <div className="card">
             <h2>Usuarios</h2>
 
@@ -1019,7 +1366,7 @@ const registrarEstanteria = async () => {
           </div>
         )}
 
-        {vista === "consultaLibros" && (
+        {accion === "consultarLibros" && (
           <div className="card">
             <h2>Consulta de Libros</h2>
 
@@ -1044,8 +1391,36 @@ const registrarEstanteria = async () => {
                 ))}
               </div>
             )}
+            {libroSeleccionado && (
+              <div className="ejemplares">
 
-            {/* Ejemplares */}
+                <h3>Información del libro</h3>
+
+                <p><b>Título:</b> {libroSeleccionado.titulo}</p>
+                <p><b>Autor:</b> {libroSeleccionado.autores}</p>
+                <p><b>Editorial:</b> {libroSeleccionado.editorial}</p>
+                <p><b>Categoría:</b> {libroSeleccionado.categoria}</p>
+                <p><b>Año:</b> {libroSeleccionado.anioPublicacion}</p>
+
+                <h3>Ejemplares de: {libroSeleccionado.titulo}</h3>
+
+                {ejemplares.length === 0 && (
+                  <p>No hay ejemplares registrados.</p>
+                )}
+
+                {Array.isArray(ejemplares) &&
+                  ejemplares.map((e) => (
+                    <div key={e.idEjemplar}>
+                      Código: {e.codigoBarra} |
+                      Ubicación: {e.ubicacionFisica} |
+                      Estado: {e.idEstado === 1 ? "Disponible" : "No disponible"}
+                    </div>
+                  ))}
+
+              </div>
+            )}
+
+            {/* Ejemplares 
             {libroSeleccionado && (
               <div className="ejemplares">
                 <h3>Ejemplares de: {libroSeleccionado.titulo}</h3>
@@ -1063,11 +1438,11 @@ const registrarEstanteria = async () => {
                     </div>
                   ))}
               </div>
-            )}
+            )}*/}
           </div>
         )}
         {/*estanteria*/}
-        {vista === "estanteria" && (
+        {accion === "agregarEstanteria" && (
           <div className="card">
             <h2>Registrar Estantería</h2>
 
@@ -1097,7 +1472,7 @@ const registrarEstanteria = async () => {
             <button onClick={registrarEstanteria}>Guardar</button>
           </div>
         )}
-        {vista === "consultaEstanterias" && (
+        {accion === "consultarEstanterias" && (
           <div className="card">
             <h2>Estanterías Registradas</h2>
 
@@ -1108,14 +1483,146 @@ const registrarEstanteria = async () => {
                 {estanterias.map((e) => (
                   <li key={e.idEstanteria}>
                     <strong>{e.nombre}</strong> | Categoría: {e.categoriaNombre}
+
+                    <button
+                      onClick={() => eliminarEstanteria(e.idEstanteria)}
+                    >
+                      Eliminar
+                    </button>
                   </li>
                 ))}
               </ul>
             )}
           </div>
         )}
+        {accion === "eliminarAutor" && (
+          <div className="card">
+            <h2>Buscar y eliminar autor</h2>
+            <input
+              type="text"
+              placeholder="Buscar autor..."
+              value={busquedaAutor}
+              onChange={(e) => filtrarAutores(e.target.value)}
+            />
+
+            {autoresFiltrados.length > 0 && (
+              <div className="dropdown-resultado">
+                {autoresFiltrados.map((a) => (
+                  <div key={a.idAutor} className="item-resultado">
+                    {a.nombre} {a.apellidoPaterno} {a.apellidoMaterno}
+                    <button onClick={() => eliminarAutor(a.idAutor)}>Eliminar</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {accion === "eliminarEditorial" && (
+          <div className="card">
+            <h2>Buscar y eliminar editorial</h2>
+            <input
+              type="text"
+              placeholder="Buscar editorial..."
+              value={busquedaEditorial}
+              onChange={(e) => filtrarEditoriales(e.target.value)}
+            />
+
+            {editorialesFiltradas.length > 0 && (
+              <div className="dropdown-resultado">
+                {editorialesFiltradas.map((e) => (
+                  <div key={e.idEditorial} className="item-resultado">
+                    {e.nombre}
+                    <button onClick={() => eliminarEditorial(e.idEditorial)}>Eliminar</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {accion === "eliminarCategoria" && (
+          <div className="card">
+            <h2>Buscar y eliminar categoría</h2>
+            <input
+              type="text"
+              placeholder="Buscar categoría..."
+              value={busquedaCategoria}
+              onChange={(e) => filtrarCategorias(e.target.value)}
+            />
+
+            {categoriasFiltradas.length > 0 && (
+              <div className="dropdown-resultado">
+                {categoriasFiltradas.map((c) => (
+                  <div key={c.idCategoria} className="item-resultado">
+                    {c.nombre}
+                    <button onClick={() => eliminarCategoria(c.idCategoria)}>Eliminar</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {accion === "consultarAutores" && (
+          <div className="card">
+            <h2>Autores registrados</h2>
+
+            {autores.length === 0 ? (
+              <p>No hay autores registrados.</p>
+            ) : (
+              <ul>
+                {autores.map((a) => (
+                  <li key={a.idAutor}>
+                    {a.nombre} {a.apellidoPaterno} {a.apellidoMaterno}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+        {accion === "consultarEditorial" && (
+          <div className="card">
+            <h2>Editoriales registradas</h2>
+
+            {editoriales.length === 0 ? (
+              <p>No hay editoriales registradas.</p>
+            ) : (
+              <ul>
+                {editoriales.map((e) => (
+                  <li key={e.idEditorial}>
+                    {e.nombre}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+        {accion === "consultarCategoria" && (
+          <div className="card">
+            <h2>Categorías registradas</h2>
+
+            {categorias.length === 0 ? (
+              <p>No hay categorías registradas.</p>
+            ) : (
+              <ul>
+                {categorias.map((c) => (
+                  <li key={c.idCategoria}>
+                    {c.nombre}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+
       </div>
     </div>
+
+
 
 
   );

@@ -12,6 +12,7 @@ export const Inicio = () => {
   const [vistaPrestamos, setVistaPrestamos] = useState("prestamos"); // activa por defecto al ingresar
   const [busqueda, setBusqueda] = useState(""); // estado para el buscador de libros
   const [resultados, setResultados] = useState([]);
+  const usuarioBloqueado = multas.some(m => !m.pagada);
 
   // ===============================
   // 📚 OBTENER LIBROS
@@ -87,17 +88,17 @@ export const Inicio = () => {
     }
   };
   //multas
-const revisarMultas = async () => {
-  try {
-    await fetch("http://localhost:3001/revisar-multas", {
-      method: "POST"
-    });
+  const revisarMultas = async () => {
+    try {
+      await fetch("http://localhost:3001/revisar-multas", {
+        method: "POST"
+      });
 
-    obtenerMultas();
-  } catch (err) {
-    console.error(err);
-  }
-};
+      obtenerMultas();
+    } catch (err) {
+      console.error(err);
+    }
+  };
   // ===============================
   // 💳 PAGAR MULTA
   // ===============================
@@ -180,6 +181,17 @@ const revisarMultas = async () => {
       </div>
 
       {mensaje && <div className="upx-alert">{mensaje}</div>}
+      {usuarioBloqueado && (
+        <div className="upx-alert" style={{ background: "#7f1d1d" }}>
+          ⚠ Tu cuenta está bloqueada por multas pendientes.
+          Debes acudir con el bibliotecario para pagar la multa.
+        </div>
+      )}
+      {usuarioBloqueado && (
+        <div className="upx-alert"style={{ background: "#7f1d1d" }} >
+          ⚠ Cuenta bloqueada por {multas.filter(m => !m.pagada).length} multa(s)
+        </div>
+      )}
 
       <div className="upx-container">
 
@@ -258,8 +270,14 @@ const revisarMultas = async () => {
 
                               <button
                                 className="upx-reserve-btn"
-                                onClick={() => reservarLibro(l.idLibro)}
-                                style={{ marginTop: "8px" }}
+                                onClick={() => {
+                                  if (usuarioBloqueado) {
+                                    setMensaje("⚠ No puedes realizar reservas porque tienes multas pendientes.");
+                                    return;
+                                  }
+
+                                  reservarLibro(l.idLibro);
+                                }}
                               >
                                 Reservar Libro
                               </button>
@@ -347,12 +365,9 @@ const revisarMultas = async () => {
                   {m.pagada ? (
                     <span className="upx-badge upx-badge-green">Pagada</span>
                   ) : (
-                    <button
-                      className="upx-pay-btn"
-                      onClick={() => pagarMulta(m.idMulta)}
-                    >
-                      Pagar
-                    </button>
+                    <span className="upx-badge upx-badge-red">
+                      Pendiente (pagar en biblioteca)
+                    </span>
                   )}
                 </div>
               ))
