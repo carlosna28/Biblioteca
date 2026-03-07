@@ -1,61 +1,126 @@
+/* =========================================
+   Biblio.css - Estilo Profesional/Empresarial
+   ========================================= */
+
+:root {
+  --primary-color: #1e293b;    /* Azul medianoche (Institucional) */
+  --accent-color: #0369a1;     /* Azul profesional para el botón */
+  --bg-color: #f8fafc;         /* Fondo gris frío muy claro */
+  --border-color: #e2e8f0;     /* Bordes sutiles */
+  --text-dark: #0f172a;        /* Texto principal */
+  --text-muted: #64748b;       /* Texto secundario */
+}
+
 /* Contenedor principal */
-div {
-    font-family: Arial, sans-serif;
+.biblio-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding: 24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* Formulario */
-form {
-    background-color: #f4f4f9;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
+/* Tarjeta del formulario */
+.biblio-form {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 480px; /* Un poco más ancho para dar aire al diseño */
+  padding: 48px;
+  border-radius: 4px; /* Bordes menos redondeados para toque profesional */
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
 }
 
-/* Título del formulario */
-form h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
+/* Título */
+.biblio-form h2 {
+  color: var(--primary-color);
+  margin: 0 0 32px 0;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 15px;
 }
 
-/* Inputs */
-input {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-    transition: 0.2s;
+/* Campos de entrada */
+.biblio-form input {
+  width: 100%;
+  margin-bottom: 20px; /* Separación clásica */
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  font-size: 14px;
+  color: var(--text-dark);
+  background-color: #fff;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
 }
 
-input:focus {
-    border-color: #6c63ff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(108, 99, 255, 0.3);
+.biblio-form input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 1px var(--accent-color);
 }
 
-/* Botón */
-button {
-    padding: 10px;
-    background-color: #6c63ff;
-    color: white;
+.biblio-form input::placeholder {
+  color: #94a3b8;
+}
+
+/* Botón de Registro */
+.biblio-form button {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  border-radius: 2px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.biblio-form button:hover {
+  background-color: var(--accent-color);
+}
+
+/* Alertas de Error y Éxito */
+.alert {
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  border-left: 4px solid transparent;
+}
+
+.alert.error {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border-left-color: #ef4444;
+}
+
+.alert.success {
+  background-color: #f0fdf4;
+  color: #166534;
+  border-left-color: #22c55e;
+}
+
+/* Adaptabilidad para móviles */
+@media (max-width: 480px) {
+  .biblio-form {
+    padding: 30px 20px;
+    box-shadow: none;
     border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-button:hover {
-    background-color: #5848c2;
-}
-
-/* Para dispositivos pequeños */
-@media (max-width: 400px) {
-    form {
-        width: 90%;
-        padding: 20px;
-    }
+    background: transparent;
+  }
 }

@@ -1,61 +1,106 @@
-/* Contenedor principal */
-div {
-    font-family: Arial, sans-serif;
+/* Admin.css */
+
+/* Reset básico */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
 }
 
-/* Formulario */
-form {
-    background-color: #f4f4f9;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
+/* Fondo de la página */
+.admin-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f4f6f8; /* Gris suave corporativo */
+  padding: 20px;
+}
+
+/* Formulario como tarjeta profesional */
+.admin-form {
+  background: #ffffff;
+  padding: 40px 35px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  text-align: center;
+  transition: box-shadow 0.3s ease;
+}
+
+.admin-form:hover {
+  box-shadow: 0 12px 25px rgba(0,0,0,0.12);
 }
 
 /* Título del formulario */
-form h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
+.admin-form h2 {
+  margin-bottom: 25px;
+  color: #1f2937; /* Gris oscuro elegante */
+  font-size: 1.7rem;
+  font-weight: 500;
 }
 
 /* Inputs */
-input {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-    transition: 0.2s;
+.admin-form input {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #d1d5db; /* gris claro */
+  outline: none;
+  font-size: 1rem;
+  transition: all 0.25s ease;
 }
 
-input:focus {
-    border-color: #ff6b6b;
-    outline: none;
-    box-shadow: 0 0 5px rgba(255, 107, 107, 0.3);
+.admin-form input:focus {
+  border-color: #2563eb; /* Azul corporativo */
+  box-shadow: 0 0 5px rgba(37,99,235,0.3);
 }
 
 /* Botón */
-button {
-    padding: 10px;
-    background-color: #ff6b6b;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.2s;
+.admin-form button {
+  width: 100%;
+  padding: 12px 20px;
+  margin-top: 15px;
+  background: #2563eb; /* Azul corporativo */
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
-button:hover {
-    background-color: #e55b5b;
+.admin-form button:hover {
+  background: #1e40af; /* Azul más oscuro al pasar el mouse */
+  transform: translateY(-2px);
 }
 
-/* Para dispositivos pequeños */
-@media (max-width: 400px) {
-    form {
-        width: 90%;
-        padding: 20px;
-    }
+/* Alertas */
+.alert {
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.alert.error {
+  background-color: #fee2e2; /* rojo suave */
+  color: #b91c1c; /* rojo corporativo */
+}
+
+.alert.success {
+  background-color: #dcfce7; /* verde suave */
+  color: #15803d; /* verde corporativo */
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+  .admin-form {
+    padding: 30px 20px;
+  }
 }
