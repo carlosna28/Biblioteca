@@ -28,6 +28,17 @@ export const Biblioinicio = () => {
   });
   const [estanteriasFiltradas, setEstanteriasFiltradas] = useState([]);
   const [usuarioMultaSeleccionado, setUsuarioMultaSeleccionado] = useState(null);
+  const [bitacora, setBitacora] = useState([]);
+
+  const cargarBitacora = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/bitacora");
+      const data = await res.json();
+      setBitacora(data);
+    } catch (error) {
+      console.error("Error cargando bitácora:", error);
+    }
+  };
 
   // BUSQUEDA USUARIO PRESTAMO
   const [busquedaUsuarioPrestamo, setBusquedaUsuarioPrestamo] = useState("");
@@ -353,6 +364,14 @@ export const Biblioinicio = () => {
       cargarEstanterias();
     }
   }, [accion]);
+
+  useEffect(() => {
+    if (modulo === "bitacora") {
+      cargarBitacora();
+    }
+  }, [modulo]);
+
+
   //buscar usuario
   const buscarUsuariosAuto = async (texto) => {
     setBusquedaUsuario(texto);
@@ -432,7 +451,10 @@ export const Biblioinicio = () => {
       console.error("Error cargando multas:", error);
     }
   };
-
+  const cerrarSesion = () => {
+    localStorage.removeItem("token"); // elimina token
+    window.location.href = "/"; // redirige al login
+  };
   //OBTENER DATOS, EDITORIAL, CATEGORIAS,AUTORES
   useEffect(() => {
     cargarDatos();
@@ -857,6 +879,10 @@ export const Biblioinicio = () => {
         <button onClick={() => { setModulo("prestamos"); setAccion(""); }}>📖 Préstamos</button>
         <button onClick={() => { setModulo("usuarios"); setAccion(""); }}>👤 Usuarios</button>
         <button onClick={() => { setModulo("multas"); setAccion(""); }}>💰 Multas</button>
+        <button onClick={() => { setModulo("bitacora"); setAccion(""); }}> 📜 Bitácora</button>
+        <button onClick={cerrarSesion}>🚪 Cerrar sesión</button>
+
+
       </div>
       <div className="submenu">
 
@@ -904,6 +930,7 @@ export const Biblioinicio = () => {
           <>
             <button onClick={() => setAccion("generarPrestamo")}>Generar préstamo</button>
             <button onClick={() => setAccion("devolucion")}>Devolución</button>
+            
           </>
         )}
 
@@ -1617,7 +1644,43 @@ export const Biblioinicio = () => {
             )}
           </div>
         )}
+        {modulo === "bitacora" && (
+          <div >
+            <h2>Bitácora del sistema</h2>
 
+            {bitacora.length === 0 ? (
+              <p>No hay registros en la bitácora.</p>
+            ) : (
+              <table className="tabla-bitacora">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Tabla</th>
+                    <th>Detalle</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {bitacora.map((b) => (
+                    <tr key={b.idBitacora}>
+                      <td>{b.idBitacora}</td>
+                      <td>{b.idUsuario}</td>
+                      <td>{b.accion}</td>
+                      <td>{b.tablaAfectada}</td>
+                      <td>{b.detalle}</td>
+                      <td>{new Date(b.fecha).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+
+        
 
       </div>
     </div>

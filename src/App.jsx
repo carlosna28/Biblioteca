@@ -4,8 +4,8 @@ import { Registro } from "./Components/Registro/Registro";
 import { Inicio } from "./Components/Inicio/Inicio";
 import { Admin } from "./Components/Admin/Admin";
 import { Biblio } from "./Components/Biblio/Biblio";
-import { Bibliotecario } from "./Components/Bibliotecario/Biblliotecario";
 import { Biblioinicio } from "./Components/Biblioinicio/Biblioinicio";
+import { Administrador } from "./Components/Administrador/Administrador";
 function App() {
   return (
     <BrowserRouter>
@@ -15,8 +15,8 @@ function App() {
         <Route path="/inicio" element={<Inicio />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/biblio" element={<Biblio />} />
-        <Route path="/bibliotecario" element={<Bibliotecario/>}/>
         <Route path="/biblioinicio" element={<Biblioinicio/>}/>
+        <Route path="/administrador" element={<Administrador/>}/>
       </Routes>
     </BrowserRouter>
   );

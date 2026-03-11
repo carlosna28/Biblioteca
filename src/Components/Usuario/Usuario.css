@@ -24,15 +24,15 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 100px 100px 40px 140px;
-    max-width: 500px;
+    padding: 100px 120px;
+    max-width: 650px;
 }
 
 /* TÍTULO */
 .Titulo-Sesion {
-    font-size: 30px;
+    font-size: 32px;
     color: #1f2937;
-    margin-bottom: 35px;
+    margin-bottom: 40px;
     line-height: 1.4;
     font-weight: 600;
 }
@@ -41,40 +41,37 @@
 .campo {
     display: flex;
     flex-direction: column;
-    margin-bottom: 22px;
-    max-width: 350px;
+    margin-bottom: 25px;
+    width: 100%;
+    max-width: 420px;
 }
 
 /* LABELS */
 .Usuario label {
     font-size: 13px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     color: #64748b;
 }
 
-/* INPUTS MODERNOS */
+/* INPUTS */
 .Usuario input {
-    padding: 12px 14px;
-    border-radius: 10px;
+    padding: 14px 16px;
+    border-radius: 12px;
     border: 1px solid #e2e8f0;
-    font-size: 14px;
+    font-size: 15px;
     transition: all 0.25s ease;
     outline: none;
     background: white;
+    width: 100%;
 }
 
+/* EFECTO FOCUS */
 .Usuario input:focus {
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-/* CONTENEDOR DE LINKS */
-.campo {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* 👈 separación vertical */
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
 }
 
-/* LINKS MEJORADOS */
+/* LINKS */
 .campo a {
     font-size: 13px;
     font-weight: 500;
@@ -84,7 +81,7 @@
     border-radius: 20px;
     background: rgba(37, 99, 235, 0.08);
     transition: all 0.25s ease;
-    width: fit-content; /* 👈 evita que ocupen todo el ancho */
+    width: fit-content;
 }
 
 .campo a:hover {
@@ -96,9 +93,10 @@
 
 /* BOTÓN */
 .btn {
-    width: 350px;
+    width: 100%;
+    max-width: 420px;
     margin-top: 15px;
-    padding: 13px;
+    padding: 15px;
     border: none;
     border-radius: 30px;
     background: linear-gradient(135deg, #3b82f6, #2563eb);
@@ -131,31 +129,33 @@
 
 /* RESPONSIVE */
 @media (max-width: 900px) {
-    .Usuario {
-        flex-direction: column;
-        align-items: center;
-    }
 
-    .Titulo-login {
-        position: static;
-        margin: 25px 0;
-        text-align: center;
-    }
+.Usuario {
+flex-direction: column;
+align-items: center;
+}
 
-    .lado-derecho {
-        display: none;
-    }
+.Titulo-login {
+position: static;
+margin: 25px 0;
+text-align: center;
+}
 
-    .lado-izquierdo {
-        padding: 40px 30px;
-        align-items: center;
-        text-align: center;
-        max-width: 100%;
-    }
+.lado-derecho {
+display: none;
+}
 
-    .campo,
-    .btn {
-        width: 100%;
-        max-width: 100%;
-    }
+.lado-izquierdo {
+padding: 40px;
+align-items: center;
+text-align: center;
+max-width: 100%;
+}
+
+.campo,
+.btn {
+width: 100%;
+max-width: 450px;
+}
+
 }

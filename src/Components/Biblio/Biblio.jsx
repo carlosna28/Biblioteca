@@ -66,7 +66,7 @@ export const Biblio = () => {
       });
 
       let data = {};
-      try { data = await res.json(); } catch {}
+      try { data = await res.json(); } catch { }
 
       if (res.ok) {
         setMensaje(data.msg || "Bibliotecario registrado correctamente");
@@ -150,6 +150,9 @@ export const Biblio = () => {
         />
 
         <button type="submit">Registrar</button>
+        <div className="login-link">
+          ¿Ya tienes cuenta? <Link to="/">Iniciar sesión</Link>
+        </div>
       </form>
     </div>
   );

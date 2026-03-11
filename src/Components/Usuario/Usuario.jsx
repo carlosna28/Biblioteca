@@ -47,7 +47,7 @@ export const Usuario = () => {
                 if (rol === 2) {
                     navigate("/biblioinicio");
                 } else if (rol === 1) {
-                    navigate("/admin");
+                    navigate("/administrador");
                 } else {
                     navigate("/inicio");
                 }

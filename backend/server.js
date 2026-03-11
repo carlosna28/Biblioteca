@@ -1720,6 +1720,22 @@ app.post("/administrador", async (req, res) => {
   }
 });
 
+app.get("/bitacora", (req, res) => {
+
+  const sql = "SELECT * FROM bitacora ORDER BY fecha DESC";
+
+  db.query(sql, (err, rows) => {
+
+    if (err) {
+      console.error("ERROR BITACORA:", err);
+      return res.status(500).json({ msg: "Error obteniendo bitacora" });
+    }
+
+    res.json(rows);
+
+  });
+
+});
 
 const PORT = 3001;
 app.listen(PORT, () =>

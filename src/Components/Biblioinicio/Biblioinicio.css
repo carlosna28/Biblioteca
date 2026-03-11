@@ -8,7 +8,7 @@
 /* ===== DASHBOARD ===== */
 .dashboard {
   display: flex;
-  height: 100vh;
+  height: 110vh;
   font-family: 'Segoe UI', sans-serif;
   background: linear-gradient(135deg, #0f172a, #1e293b);
 }
@@ -96,6 +96,7 @@
   border-color: #3b82f6;
   box-shadow: 0 0 8px rgba(59,130,246,.4);
 }
+
 
 /* ===== BOTONES ===== */
 .card button {
@@ -330,4 +331,88 @@ button:active {
 /* TEXTO CUANDO NO HAY MULTAS */
 .lista-multas p {
   color: #6b7280;
+}
+
+/* ===== TABLA BITACORA ===== */
+
+.tabla-bitacora{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+font-size:14px;
+}
+
+/* encabezado */
+.tabla-bitacora thead{
+background:linear-gradient(90deg,#2563eb,#3b82f6);
+color:white;
+}
+
+.tabla-bitacora th{
+padding:14px;
+text-align:left;
+font-weight:600;
+letter-spacing:.5px;
+}
+
+/* celdas */
+.tabla-bitacora td{
+padding:12px 14px;
+border-bottom:1px solid #e5e7eb;
+color:#374151;
+}
+
+/* filas */
+.tabla-bitacora tbody tr{
+transition:all .2s ease;
+}
+
+.tabla-bitacora tbody tr:hover{
+background:#f1f5f9;
+transform:scale(1.01);
+}
+
+/* filas alternas */
+.tabla-bitacora tbody tr:nth-child(even){
+background:#f8fafc;
+}
+
+/* última fila sin borde */
+.tabla-bitacora tbody tr:last-child td{
+border-bottom:none;
+}
+
+/* ===== CARD PARA TABLAS ===== */
+
+.card-tabla{
+width:100%;
+max-width:1200px;
+background:white;
+border-radius:20px;
+padding:30px;
+box-shadow:0 15px 40px rgba(0,0,0,0.15);
+animation:fadeIn .4s ease;
+}
+
+.card-tabla h2{
+margin-bottom:20px;
+color:#1e293b;
+}
+
+.logout-btn{
+  margin-top: auto;
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.logout-btn:hover{
+  background: #dc2626;
 }

@@ -68,7 +68,7 @@ export const Admin = () => {
       let data = {};
       try {
         data = await res.json();
-      } catch {}
+      } catch { }
 
       if (res.ok) {
         setMensaje(data.msg || "Administrador registrado correctamente");
@@ -152,6 +152,10 @@ export const Admin = () => {
         />
 
         <button type="submit">Registrar</button>
+
+        <div className="login-link">
+          ¿Ya tienes cuenta? <Link to="/">Iniciar sesión</Link>
+        </div>
       </form>
     </div>
   );
